@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/jboss-eap-6/eap64-openshift:latest
+FROM jboss-eap-6/eap64-openshift:latest
 
 MAINTAINER andreas.schramm@axa.de
 

@@ -12,7 +12,11 @@
     },
     "labels": {
         "template": "axa-eap64-basic-s2i",
-        "xpaas": "1.2.0"
+        "xpaas": "1.2.0",
+        "axa": "axa-de",
+        "createdBy": "template-axa-eap64-basic-s2i"
+   },
+
     },
     "parameters": [
         {
@@ -336,7 +340,15 @@
                                     {
                                         "name": "JGROUPS_CLUSTER_PASSWORD",
                                         "value": "${JGROUPS_CLUSTER_PASSWORD}"
-                                    }
+                                    },
+                                    {
+					                							"name": "HTTP_PROXY",
+					                							"value": "${HTTP_PROXY}"
+				            								},
+				            								{
+					                							"name": "HTTPS_PROXY",
+					                							"value": "${HTTP_PROXY}"
+				            								}
                                 ]
                             }
                         ]
