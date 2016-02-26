@@ -16,8 +16,6 @@
         "axa": "axa-de",
         "createdBy": "template-axa-eap64-basic-s2i"
    },
-
-    },
     "parameters": [
         {
             "description": "The name for the application.",

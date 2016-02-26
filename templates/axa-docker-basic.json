@@ -1,0 +1,152 @@
+﻿{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+        "annotations": {
+            "iconClass": "icon-template",
+            "description": "AXA Docker images build template",
+            "tags": "docker,axa,builder,java",
+            "version": "1.2.0"
+        },
+        "name": "axa-docker-basic"
+    },
+    "labels": {
+        "template": "axa-docker-basic",
+        "xpaas": "1.2.0",
+        "axa": "axa-de",
+        "createdBy": "template-axa-docker-basic",
+        "marker": "axa-docker-basic"
+   },
+    "parameters": [
+        {
+            "description": "The name of the resulting image.",
+            "name": "IMAGE_NAME",
+            "value": "image",
+            "required": true
+        },
+        {
+            "description": "The name of base image. (Docker style) ",
+            "name": "BASE_IMAGE_NAME",
+            "value": "jboss-eap-6/eap64-openshift",
+            "required": true
+        },
+        {
+            "description": "Git source URI for Dockerfile",
+            "name": "SOURCE_REPOSITORY_URL",
+            "value": "https://github.com/andreasschramm/pretty-openshift",
+            "required": true
+        },
+        {
+            "description": "Git branch/tag reference",
+            "name": "SOURCE_REPOSITORY_REF",
+            "value": "master",
+            "required": false
+        },
+        {
+            "description": "Path within Git project to build; empty for root project directory.",
+            "name": "CONTEXT_DIR",
+            "value": "images/axa-de-eap64",
+            "required": false
+        },
+        {
+            "description": "Proxy for Internet Access",
+            "name": "HTTP_PROXY",
+            "value": "http://default-http-proxy.default.svc.cluster.local:8080",
+            "required": false
+        },
+        {
+            "description": "GitHub trigger secret",
+            "name": "GITHUB_WEBHOOK_SECRET",
+            "from": "[a-zA-Z0-9]{8}",
+            "generate": "expression",
+            "required": true
+        },
+        {
+            "description": "Generic build trigger secret",
+            "name": "GENERIC_WEBHOOK_SECRET",
+            "from": "[a-zA-Z0-9]{8}",
+            "generate": "expression",
+            "required": true
+        }
+    ],
+    "objects": [
+    {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${IMAGE_NAME}",
+                "labels": {
+                    "application": "${IMAGE_NAME}"
+                }
+            }
+        },
+        {
+            "kind": "BuildConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${IMAGE_NAME}",
+                "labels": {
+                    "application": "${IMAGE_NAME}"
+                }
+            },
+            "spec": {
+                "source": {
+                    "type": "Git",
+                    "git": {
+                        "uri": "${SOURCE_REPOSITORY_URL}",
+                        "ref": "${SOURCE_REPOSITORY_REF}",
+                        "httpProxy": "${HTTP_PROXY}",
+        								"httpsProxy": "${HTTP_PROXY}"
+                    },
+                    "contextDir": "${CONTEXT_DIR}"
+                },
+                "strategy": {
+                    "type": "Docker",
+				            "dockerStrategy": {
+				                "from": {
+				                    "kind": "DockerImage",
+				                    "name": "${BASE_IMAGE_NAME}:latest"
+				                },
+				                "env": [
+								            {
+								                "name": "HTTP_PROXY",
+								                "value": "${HTTP_PROXY}"
+								            },
+								            {
+								                "name": "HTTPS_PROXY",
+								                "value": "${HTTP_PROXY}"
+								            }
+							          ]
+				            }
+                },
+                "output": {
+                    "to": {
+                        "kind": "ImageStreamTag",
+                        "name": "${IMAGE_NAME}:latest"
+                    }
+                },
+                "triggers": [
+                    {
+                        "type": "GitHub",
+                        "github": {
+                            "secret": "${GITHUB_WEBHOOK_SECRET}"
+                        }
+                    },
+                    {
+                        "type": "Generic",
+                        "generic": {
+                            "secret": "${GENERIC_WEBHOOK_SECRET}"
+                        }
+                    },
+                    {
+                        "type": "ImageChange",
+                        "imageChange": {}
+                    },
+                    {
+                        "type": "ConfigChange"
+                    }
+                ]
+            }
+        }
+    ]
+}
