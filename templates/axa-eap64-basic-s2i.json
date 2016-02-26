@@ -87,9 +87,9 @@
             "required": true
         },
         {
-            "description": "Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.",
+            "description": "Namespace in which the ImageStreams for AXA images are installed.",
             "name": "IMAGE_STREAM_NAMESPACE",
-            "value": "openshift",
+            "value": "axade-openshift-pilot",
             "required": true
         },
         {
@@ -182,7 +182,7 @@
                         "from": {
                             "kind": "ImageStreamTag",
                             "namespace": "${IMAGE_STREAM_NAMESPACE}",
-                            "name": "axa-jboss-eap64-openshift:latest"
+                            "name": "axa-eap64-openshift:latest"
                         },
                         "env": [
                         		{
