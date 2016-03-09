@@ -46,6 +46,24 @@
             "required": false
         },
         {
+            "description": "Proxy Host for Internet Access",
+            "name": "HTTP_PROXY_HOST",
+            "value": "default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com",
+            "required": false
+        },
+        {
+            "description": "Proxy Port for Internet Access",
+            "name": "HTTP_PROXY_PORT",
+            "value": "8888",
+            "required": false
+        },
+        {
+            "description": "Nexus mirror url",
+            "name": "MAVEN_MIRROR_URL",
+            "value": "http://nexus.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com/content/groups/public/",
+            "required": false
+        },
+        {
             "description": "JWS Admin User",
             "name": "JWS_ADMIN_USERNAME",
             "from": "[a-zA-Z0-9]{8}",
@@ -149,7 +167,9 @@
                     "type": "Git",
                     "git": {
                         "uri": "${SOURCE_REPOSITORY_URL}",
-                        "ref": "${SOURCE_REPOSITORY_REF}"
+                        "ref": "${SOURCE_REPOSITORY_REF}",
+                        "httpProxy": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}",
+        		"httpsProxy": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
                     },
                     "contextDir": "${CONTEXT_DIR}"
                 },
@@ -161,7 +181,29 @@
                             "kind": "ImageStreamTag",
                             "namespace": "${IMAGE_STREAM_NAMESPACE}",
                             "name": "jboss-webserver30-tomcat8-openshift:1.2"
-                        }
+                        },
+                        "env": [
+		            {
+		                "name": "HTTP_PROXY_HOST",
+		                "value": "${HTTP_PROXY_HOST}"
+		            },
+		            {							            
+		                "name": "HTTP_PROXY_PORT",
+		                "value": "${HTTP_PROXY_PORT}"
+		            },
+		            {
+		                "name": "HTTP_PROXY",
+		                "value": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
+		            },
+		            {
+		                "name": "HTTPS_PROXY",
+		                "value": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
+		            },
+		            {
+		                "name": "MAVEN_MIRROR_URL",
+		                "value": "${MAVEN_MIRROR_URL}"
+		            }
+                        ]
                     }
                 },
                 "output": {
@@ -272,7 +314,23 @@
                                     {
                                         "name": "JWS_ADMIN_PASSWORD",
                                         "value": "${JWS_ADMIN_PASSWORD}"
-                                    }
+                                    },
+                                    {
+        		                "name": "HTTP_PROXY_HOST",
+        		                "value": "${HTTP_PROXY_HOST}"
+        		            },
+        		            {							            
+        		                "name": "HTTP_PROXY_PORT",
+        		                "value": "${HTTP_PROXY_PORT}"
+        		            },
+        		            {
+        		                "name": "HTTP_PROXY",
+        		                "value": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
+        		            },
+        		            {
+        		                "name": "HTTPS_PROXY",
+        		                "value": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
+        		            }
                                 ]
                             }
                         ]

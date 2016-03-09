@@ -4,7 +4,7 @@
     "metadata": {
         "annotations": {
             "iconClass": "icon-jboss",
-            "description": "AXA Application template for EAP 6 applications built using S2I. the proxy setting inside the deplomentconfig are only neede, if the applications needs to access internet at runtime. (ask security!) the proy settings for the build config apply only to the builder image (not production pod)",
+            "description": "AXA Application template for EAP 6 applications built using S2I.",
             "tags": "eap,javaee,java,jboss,xpaas,axa",
             "version": "1.2.0"
         },
@@ -20,7 +20,13 @@
         {
             "description": "The name for the application.",
             "name": "APPLICATION_NAME",
-            "value": "eap-app",
+            "value": "CRDO",
+            "required": true
+        },
+        {
+            "description": "Axa Environment.",
+            "name": "AXA_RT_ENV",
+            "value": "MIGR",
             "required": true
         },
         {
@@ -30,21 +36,33 @@
             "required": false
         },
         {
-            "description": "Git source URI for application",
-            "name": "SOURCE_REPOSITORY_URL",
-            "value": "https://github.com/jboss-developer/jboss-eap-quickstarts",
+            "description": "Artifact ID",
+            "name": "ARTIFACT_ID",
+            "value": "doubleOptInchecker",
             "required": true
         },
         {
-            "description": "Git branch/tag reference",
-            "name": "SOURCE_REPOSITORY_REF",
-            "value": "6.4.x",
+            "description": "Group ID",
+            "name": "GROUP_ID",
+            "value": "de.axa.sapcrm",
+            "required": true
+        },
+        {
+            "description": "Version",
+            "name": "ARTIFACT_VERSION",
+            "value": "1.0.10-SNAPSHOT",
+            "required": true
+        },
+        {
+            "description": "Type",
+            "name": "TYPE",
+            "value": "",
             "required": false
         },
         {
-            "description": "Path within Git project to build; empty for root project directory.",
-            "name": "CONTEXT_DIR",
-            "value": "kitchensink",
+            "description": "Classifier",
+            "name": "CLASSFIER",
+            "value": "",
             "required": false
         },
         {
@@ -124,11 +142,11 @@
                     }
                 ],
                 "selector": {
-                    "deploymentConfig": "${APPLICATION_NAME}"
+                    "deploymentConfig": "${APPLICATION_NAME}-${AXA_RT_ENV}"
                 }
             },
             "metadata": {
-                "name": "${APPLICATION_NAME}",
+                "name": "${APPLICATION_NAME}-${AXA_RT_ENV}",
                 "labels": {
                     "application": "${APPLICATION_NAME}"
                 },
@@ -140,9 +158,9 @@
         {
             "kind": "Route",
             "apiVersion": "v1",
-            "id": "${APPLICATION_NAME}-http",
+            "id": "${APPLICATION_NAME}-${AXA_RT_ENV}-http",
             "metadata": {
-                "name": "${APPLICATION_NAME}",
+                "name": "${APPLICATION_NAME}-${AXA_RT_ENV}",
                 "labels": {
                     "application": "${APPLICATION_NAME}"
                 },
@@ -163,7 +181,7 @@
             "metadata": {
                 "name": "${APPLICATION_NAME}",
                 "labels": {
-                    "application": "${APPLICATION_NAME}"
+                    "application": "${APPLICATION_NAME}-${AXA_RT_ENV}"
                 }
             }
         },
@@ -171,9 +189,9 @@
             "kind": "BuildConfig",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${APPLICATION_NAME}",
+                "name": "${APPLICATION_NAME}-${AXA_RT_ENV}",
                 "labels": {
-                    "application": "${APPLICATION_NAME}"
+                    "application": "${APPLICATION_NAME}-${AXA_RT_ENV}"
                 }
             },
             "spec": {
@@ -223,7 +241,7 @@
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "${APPLICATION_NAME}:latest"
+                        "name": "${APPLICATION_NAME}:${AXA_RT_ENV}"
                     }
                 },
                 "triggers": [
@@ -253,9 +271,9 @@
             "kind": "DeploymentConfig",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${APPLICATION_NAME}",
+                "name": "${APPLICATION_NAME}-${AXA_RT_ENV}",
                 "labels": {
-                    "application": "${APPLICATION_NAME}"
+                    "application": "${APPLICATION_NAME}-${AXA_RT_ENV}"
                 }
             },
             "spec": {
@@ -268,11 +286,11 @@
                         "imageChangeParams": {
                             "automatic": true,
                             "containerNames": [
-                                "${APPLICATION_NAME}"
+                                "${APPLICATION_NAME}-${AXA_RT_ENV}"
                             ],
                             "from": {
                                 "kind": "ImageStream",
-                                "name": "${APPLICATION_NAME}"
+                                "name": "${APPLICATION_NAME}:${AXA_RT_ENV}"
                             }
                         }
                     },
@@ -286,17 +304,17 @@
                 },
                 "template": {
                     "metadata": {
-                        "name": "${APPLICATION_NAME}",
+                        "name": "${APPLICATION_NAME}-${AXA_RT_ENV}",
                         "labels": {
-                            "deploymentConfig": "${APPLICATION_NAME}",
-                            "application": "${APPLICATION_NAME}"
+                            "deploymentConfig": "${APPLICATION_NAME}-${AXA_RT_ENV}",
+                            "application": "${APPLICATION_NAME}-${AXA_RT_ENV}"
                         }
                     },
                     "spec": {
                         "terminationGracePeriodSeconds": 60,
                         "containers": [
                             {
-                                "name": "${APPLICATION_NAME}",
+                                "name": "${APPLICATION_NAME}-${AXA_RT_ENV}",
                                 "image": "${APPLICATION_NAME}",
                                 "imagePullPolicy": "Always",
                                 "livenessProbe": {
@@ -378,6 +396,10 @@
         		            {
         		                "name": "HTTPS_PROXY",
         		                "value": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
+        		            },
+        		            {
+        		                "name": "AXA_RT_ENV",
+        		                "value": "${AXA_RT_ENV}"
         		            }
                                 ]
                             }

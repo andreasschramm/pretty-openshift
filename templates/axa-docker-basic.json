@@ -49,9 +49,21 @@
             "required": false
         },
         {
-            "description": "Proxy for Internet Access",
-            "name": "HTTP_PROXY",
-            "value": "http://default-http-proxy.default.svc.cluster.local:8080",
+            "description": "Proxy Host for Internet Access",
+            "name": "HTTP_PROXY_HOST",
+            "value": "default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com",
+            "required": false
+        },
+        {
+            "description": "Proxy Port for Internet Access",
+            "name": "HTTP_PROXY_PORT",
+            "value": "8888",
+            "required": false
+        },
+        {
+            "description": "Path to settings.xml",
+            "name": "SETTINGS_XML_PATH",
+            "value": "/home/jboss/.m2/settings.xml",
             "required": false
         },
         {
@@ -95,8 +107,8 @@
                     "git": {
                         "uri": "${SOURCE_REPOSITORY_URL}",
                         "ref": "${SOURCE_REPOSITORY_REF}",
-                        "httpProxy": "${HTTP_PROXY}",
-        								"httpsProxy": "${HTTP_PROXY}"
+                        "httpProxy": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}",
+        		"httpsProxy": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
                     },
                     "contextDir": "${CONTEXT_DIR}"
                 },
@@ -109,12 +121,20 @@
 				                },
 				                "env": [
 								            {
-								                "name": "HTTP_PROXY",
-								                "value": "${HTTP_PROXY}"
+								                "name": "HTTP_PROXY_HOST",
+								                "value": "${HTTP_PROXY_HOST}"
+								            },
+								            {							            {
+								                "name": "HTTP_PROXY_PORT",
+								                "value": "${HTTP_PROXY_PORT}"
 								            },
 								            {
-								                "name": "HTTPS_PROXY",
-								                "value": "${HTTP_PROXY}"
+								                "name": "http_proxy",
+								                "value": "http:/${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
+								            },
+								            {
+								                "name": "https_proxy",
+								                "value": "http:/${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
 								            }
 							          ]
 				            }

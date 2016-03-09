@@ -4,7 +4,7 @@
     "metadata": {
         "annotations": {
             "iconClass": "icon-jboss",
-            "description": "AXA Application template for EAP 6 applications built using S2I. the proxy setting inside the deplomentconfig are only neede, if the applications needs to access internet at runtime. (ask security!) the proy settings for the build config apply only to the builder image (not production pod)",
+            "description": "AXA Application template for EAP 6 applications built using S2I.",
             "tags": "eap,javaee,java,jboss,xpaas,axa",
             "version": "1.2.0"
         },
@@ -212,10 +212,6 @@
 		            {
 		                "name": "HTTPS_PROXY",
 		                "value": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
-		            },
-		            {
-		                "name": "MAVEN_MIRROR_URL",
-		                "value": "${MAVEN_MIRROR_URL}"
 		            }
                         ]
                     }
