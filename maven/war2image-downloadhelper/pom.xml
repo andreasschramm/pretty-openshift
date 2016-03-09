@@ -1,0 +1,52 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	
+	<groupId>de.axa.cloud</groupId>
+	<artifactId>war2image-downloadhelper</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+
+	<build>
+		<plugins>
+			<plugin>
+			    <artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target</outputDirectory>
+							<stripVersion>true</stripVersion>
+							<overWriteReleases>true</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+		
+	<dependencies>
+		<dependency>
+			<groupId>${axa.deployment.groupId}</groupId>
+			<artifactId>${axa.deployment.artifactId}</artifactId>
+			<version>${axa.deployment.version}</version>
+		        <type>${axa.deployment.type}</type>
+			<classifier>${axa.deployment.classifier}</classifier>
+		</dependency>
+        </dependencies>
+		
+	<properties>
+	    <axa.deployment.groupId>${env.AXA_DEPLOYMENT_GROUP_ID}</axa.deployment.groupId>
+	    <axa.deployment.artifactId>${env.AXA_DEPLOYMENT_ARTIFACT_ID}</axa.deployment.artifactId>
+	    <axa.deployment.version>${env.AXA_DEPLOYMENT_VERSION}</axa.deployment.version>
+	    <axa.deployment.type>${env.AXA_DEPLOYMENT_TYPE}</axa.deployment.type>
+	    <axa.deployment.classifier>${env.AXA_DEPLOYMENT_CLASSIFIER}</axa.deployment.classifier>
+	</properties>
+	
+</project>
