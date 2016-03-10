@@ -215,10 +215,6 @@
 		            {
 		                "name": "HTTPS_PROXY",
 		                "value": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
-		            },
-		            {
-		                "name": "MAVEN_MIRROR_URL",
-		                "value": "${MAVEN_MIRROR_URL}"
 		            }
                         ]
                     }
