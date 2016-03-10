@@ -36,10 +36,10 @@
             "required": true
         },
         {
-            "description": "Git branch/tag reference",
+            "description": "Git master/branch/tag reference",
             "name": "SOURCE_REPOSITORY_REF",
-            "value": "6.4.x",
-            "required": false
+            "value": "",
+            "required": true
         },
         {
             "description": "Path within Git project to build; empty for root project directory.",
@@ -183,9 +183,12 @@
                         "uri": "${SOURCE_REPOSITORY_URL}",
                         "ref": "${SOURCE_REPOSITORY_REF}",
                         "httpProxy": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}",
-        		"httpsProxy": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
+        		        "httpsProxy": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
                     },
-                    "contextDir": "${CONTEXT_DIR}"
+                    "contextDir": "${CONTEXT_DIR}",
+                    "sourceSecret": {
+                        "name": "stashsecret"
+                    }
                 },
                 "strategy": {
                     "type": "Source",
