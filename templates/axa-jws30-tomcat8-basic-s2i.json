@@ -22,27 +22,33 @@
             "required": true
         },
         {
-            "description": "Custom hostname for http service route.  Leave blank for default hostname, e.g.: <application-name>-<project>.<default-domain-suffix>",
+            "description": "Custom hostname for http service route.  e.g.: <application-name>-<project>",
             "name": "HOSTNAME_HTTP",
             "value": "",
-            "required": false
+            "required": true
+        },
+        {
+            "description": "Axa Environment.",
+            "name": "AXA_RT_ENV",
+            "value": "MIGR",
+            "required": true
         },
         {
             "description": "Git source URI for application",
             "name": "SOURCE_REPOSITORY_URL",
-            "value": "https://github.com/jboss-openshift/openshift-quickstarts.git",
+            "value": "",
             "required": true
         },
         {
             "description": "Git branch/tag reference",
             "name": "SOURCE_REPOSITORY_REF",
-            "value": "1.2",
-            "required": false
+            "value": "",
+            "required": true
         },
         {
             "description": "Path within Git project to build; empty for root project directory.",
             "name": "CONTEXT_DIR",
-            "value": "tomcat-websocket-chat",
+            "value": "",
             "required": false
         },
         {
@@ -137,7 +143,7 @@
                 }
             },
             "spec": {
-                "host": "${HOSTNAME_HTTP}",
+                "host": "${HOSTNAME_HTTP}.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com",
                 "to": {
                     "name": "${APPLICATION_NAME}"
                 }
@@ -171,7 +177,10 @@
                         "httpProxy": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}",
         		"httpsProxy": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
                     },
-                    "contextDir": "${CONTEXT_DIR}"
+                    "contextDir": "${CONTEXT_DIR}",
+                    "sourceSecret": {
+                        "name": "stashsecret"
+                    }
                 },
                 "strategy": {
                     "type": "Source",
@@ -202,7 +211,11 @@
 		            {
 		                "name": "MAVEN_MIRROR_URL",
 		                "value": "${MAVEN_MIRROR_URL}"
-		            }
+		            },
+                    {
+                        "name": "axa.rt.env",
+                        "value": "${AXA_RT_ENV}"
+                    }
                         ]
                     }
                 },
