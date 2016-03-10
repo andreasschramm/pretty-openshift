@@ -60,12 +60,6 @@
             "required": false
         },
         {
-            "description": "Nexus mirror url",
-            "name": "MAVEN_MIRROR_URL",
-            "value": "http://nexus.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com/content/groups/public/",
-            "required": false
-        },
-        {
             "description": "Queue names",
             "name": "HORNETQ_QUEUES",
             "value": "",
