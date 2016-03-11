@@ -18,7 +18,13 @@
         {
             "description": "The name for the application.",
             "name": "APPLICATION_NAME",
-            "value": "jws-app",
+            "value": "",
+            "required": true
+        },
+        {
+            "description": "Rootcontext for the application",
+            "name": "ROOT_CONTEXT_NAME",
+            "value": "",
             "required": true
         },
         {
@@ -144,6 +150,7 @@
             },
             "spec": {
                 "host": "${HOSTNAME_HTTP}.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com",
+                "path": "/${ROOT_CONTEXT_NAME}",
                 "to": {
                     "name": "${APPLICATION_NAME}"
                 }
@@ -213,7 +220,7 @@
 		                "value": "${MAVEN_MIRROR_URL}"
 		            },
                     {
-                        "name": "axa.rt.env",
+                        "name": "AXA_RT_ENV",
                         "value": "${AXA_RT_ENV}"
                     }
                         ]
