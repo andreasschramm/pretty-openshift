@@ -4,7 +4,7 @@
     "metadata": {
         "annotations": {
             "iconClass": "icon-tomcat",
-            "description": "Application template for JWS applications built using S2I.",
+            "description": "Application template for Tomcat8 / bin deploy from nexus.",
             "tags": "tomcat,tomcat8,java,xpaas,axa",
             "version": "1.2.0"
         },
@@ -218,7 +218,7 @@
                         "from": {
                             "kind": "ImageStreamTag",
                             "namespace": "${IMAGE_STREAM_NAMESPACE}",
-                            "name": "jboss-eap64-openshift:latest"
+                            "name": "jboss-webserver30-tomcat8-openshift:latest"
                         },
                         "env": [
 		            {
@@ -243,7 +243,7 @@
 		            },
                     {
                         "name": "WAR_FILE_URL",
-                        "value": "http://nexus.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com/content/repositories/releases/de/axa/openshiftdemo/0.0.1/openshiftdemo-0.0.1.war"
+                        "value": "http://172.30.115.34:8081/content/repositories/releases/de/axa/openshiftdemo/0.0.1/openshiftdemo-0.0.1.war"
                     }
                         ]
                     }
