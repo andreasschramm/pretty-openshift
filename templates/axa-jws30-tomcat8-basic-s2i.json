@@ -22,7 +22,7 @@
             "required": true
         },
         {
-            "description": "Rootcontext for the application",
+            "description": "Web Rootpath for the application",
             "name": "ROOT_CONTEXT_NAME",
             "value": "",
             "required": true

@@ -18,7 +18,7 @@
         {
             "description": "The name for the application.",
             "name": "APPLICATION_NAME",
-            "value": "CRDO",
+            "value": "",
             "required": true
         },
         {
@@ -28,7 +28,7 @@
             "required": true
         },
         {
-            "description": "Rootcontext for the application",
+            "description": "Web Rootcontext for the application",
             "name": "ROOT_CONTEXT_NAME",
             "value": "",
             "required": true
@@ -46,9 +46,9 @@
             "required": true
         },
         {
-            "description": "Group ID",
+            "description": "Group ID, statt . Slash(/)",
             "name": "GROUP_ID",
-            "value": "de.axa",
+            "value": "de/axa",
             "required": true
         },
         {
@@ -58,67 +58,10 @@
             "required": true
         },
         {
-            "description": "Type",
-            "name": "TYPE",
-            "value": "",
-            "required": false
-        },
-        {
-            "description": "Classifier",
-            "name": "CLASSFIER",
-            "value": "",
-            "required": false
-        },
-        {
             "description": "Proxy Host for Internet Access",
             "name": "HTTP_PROXY_HOST",
             "value": "default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com",
             "required": false
-        },
-        {
-            "description": "Proxy Port for Internet Access",
-            "name": "HTTP_PROXY_PORT",
-            "value": "8888",
-            "required": false
-        },
-        {
-            "description": "Nexus mirror url",
-            "name": "MAVEN_MIRROR_URL",
-            "value": "http://nexus.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com/content/groups/public/",
-            "required": false
-        },
-        {
-            "description": "Queue names",
-            "name": "HORNETQ_QUEUES",
-            "value": "",
-            "required": false
-        },
-        {
-            "description": "Topic names",
-            "name": "HORNETQ_TOPICS",
-            "value": "",
-            "required": false
-        },
-        {
-            "description": "HornetQ cluster admin password",
-            "name": "HORNETQ_CLUSTER_PASSWORD",
-            "from": "[a-zA-Z0-9]{8}",
-            "generate": "expression",
-            "required": true
-        },
-        {
-            "description": "GitHub trigger secret",
-            "name": "GITHUB_WEBHOOK_SECRET",
-            "from": "[a-zA-Z0-9]{8}",
-            "generate": "expression",
-            "required": true
-        },
-        {
-            "description": "Generic build trigger secret",
-            "name": "GENERIC_WEBHOOK_SECRET",
-            "from": "[a-zA-Z0-9]{8}",
-            "generate": "expression",
-            "required": true
         },
         {
             "description": "Namespace in which the base ImageStreams are installed.",
@@ -127,11 +70,10 @@
             "required": true
         },
         {
-            "description": "JGroups cluster password",
-            "name": "JGROUPS_CLUSTER_PASSWORD",
-            "from": "[a-zA-Z0-9]{8}",
-            "generate": "expression",
-            "required": true
+            "description": "Proxy Port for Internet Access",
+            "name": "HTTP_PROXY_PORT",
+            "value": "8888",
+            "required": false
         }
     ],
     "objects": [
@@ -162,9 +104,9 @@
         {
             "kind": "Route",
             "apiVersion": "v1",
-            "id": "${APPLICATION_NAME}-${AXA_RT_ENV}-http",
+            "id": "${APPLICATION_NAME}-http",
             "metadata": {
-                "name": "${APPLICATION_NAME}-${AXA_RT_ENV}",
+                "name": "${APPLICATION_NAME}",
                 "labels": {
                     "application": "${APPLICATION_NAME}"
                 },
@@ -173,10 +115,10 @@
                 }
             },
             "spec": {
-                "host": "${HOSTNAME_HTTP}",
+                "host": "${HOSTNAME_HTTP}.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com",
                 "path": "/${ROOT_CONTEXT_NAME}",
                 "to": {
-                    "name": "${APPLICATION_NAME}"
+                    "name": "${APPLICATION_NAME}-${AXA_RT_ENV}"
                 }
             }
         },
@@ -237,13 +179,13 @@
 		                "name": "HTTPS_PROXY",
 		                "value": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
 		            },
-		            {
-		                "name": "MAVEN_MIRROR_URL",
-		                "value": "${MAVEN_MIRROR_URL}"
-		            },
+                    {
+                        "name": "ROOT_CONTEXT_NAME",
+                        "value": "${ROOT_CONTEXT_NAME}"
+                    },
                     {
                         "name": "WAR_FILE_URL",
-                        "value": "http://172.30.115.34:8081/content/repositories/releases/de/axa/openshiftdemo/0.0.1/openshiftdemo-0.0.1.war"
+                        "value": "http://172.30.115.34:8081/content/groups/public/${GROUP_ID}/${ARTIFACT_ID}/${ARTIFACT_VERSION}/${ARTIFACT_ID}-${ARTIFACT_VERSION}.war"
                     }
                         ]
                     }
@@ -255,18 +197,6 @@
                     }
                 },
                 "triggers": [
-                    {
-                        "type": "GitHub",
-                        "github": {
-                            "secret": "${GITHUB_WEBHOOK_SECRET}"
-                        }
-                    },
-                    {
-                        "type": "Generic",
-                        "generic": {
-                            "secret": "${GENERIC_WEBHOOK_SECRET}"
-                        }
-                    },
                     {
                         "type": "ImageChange",
                         "imageChange": {}
@@ -327,24 +257,6 @@
                                 "name": "${APPLICATION_NAME}-${AXA_RT_ENV}",
                                 "image": "${APPLICATION_NAME}",
                                 "imagePullPolicy": "Always",
-                                "livenessProbe": {
-                                    "exec": {
-                                        "command": [
-                                            "/bin/bash",
-                                            "-c",
-                                            "/opt/eap/bin/livenessProbe.sh"
-                                        ]
-                                    }
-                                },
-                                "readinessProbe": {
-                                    "exec": {
-                                        "command": [
-                                            "/bin/bash",
-                                            "-c",
-                                            "/opt/eap/bin/readinessProbe.sh"
-                                        ]
-                                    }
-                                },
                                 "ports": [
                                     {
                                         "name": "jolokia",
@@ -374,22 +286,6 @@
                                                 "fieldPath": "metadata.namespace"
                                             }
                                         }
-                                    },
-                                    {
-                                        "name": "HORNETQ_CLUSTER_PASSWORD",
-                                        "value": "${HORNETQ_CLUSTER_PASSWORD}"
-                                    },
-                                    {
-                                        "name": "HORNETQ_QUEUES",
-                                        "value": "${HORNETQ_QUEUES}"
-                                    },
-                                    {
-                                        "name": "HORNETQ_TOPICS",
-                                        "value": "${HORNETQ_TOPICS}"
-                                    },
-                                    {
-                                        "name": "JGROUPS_CLUSTER_PASSWORD",
-                                        "value": "${JGROUPS_CLUSTER_PASSWORD}"
                                     },
          		            {
         		                "name": "HTTP_PROXY_HOST",
