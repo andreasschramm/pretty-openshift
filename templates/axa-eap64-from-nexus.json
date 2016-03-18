@@ -300,7 +300,7 @@
                 ],
                 "replicas": 1,
                 "selector": {
-                    "deploymentConfig": "${APPLICATION_NAME}"
+                    "deploymentConfig": "${APPLICATION_NAME}-${AXA_RT_ENV}"
                 },
                 "template": {
                     "metadata": {
