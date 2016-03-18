@@ -1,0 +1,12 @@
+﻿</globalConnectionSettings>
+<remoteProxySettings>                                                         
+    <httpProxySettings>                                                         
+      <proxyHostname>default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud
+.com</proxyHostname>                                                            
+      <proxyPort>8888</proxyPort>                                               
+    </httpProxySettings>                                                        
+    <nonProxyHosts>                                                             
+      <nonProxyHost>.*\.pink\.eu-central-1\.aws.openpaas.axa-cloud.com</nonProxy
+Host>                                                                           
+    </nonProxyHosts>                                                            
+  </remoteProxySettings>
