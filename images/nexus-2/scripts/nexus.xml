@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <nexusConfiguration>
   <version>2.8.0</version>
-  <nexusVersion>2.12.1-01</nexusVersion>
+  <nexusVersion>2.11.4-01</nexusVersion>
   <globalConnectionSettings>
     <connectionTimeout>20000</connectionTimeout>
     <retrievalRetryCount>3</retrievalRetryCount>
-    <queryString></queryString>
   </globalConnectionSettings>
-  <remoteProxySettings>                                                         
-    <httpProxySettings>                                                         
+  <remoteProxySettings>
+    <httpProxySettings>
       <proxyHostname>default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com</proxyHostname>
-      <proxyPort>8888</proxyPort>                                               
-    </httpProxySettings>                                                        
-    <nonProxyHosts>                                                             
+      <proxyPort>8888</proxyPort>
+    </httpProxySettings>
+    <nonProxyHosts>
       <nonProxyHost>.*\.pink\.eu-central-1\.aws.openpaas.axa-cloud.com</nonProxyHost>
-    </nonProxyHosts>                                                            
+    </nonProxyHosts>
   </remoteProxySettings>
   <restApi>
+    <baseUrl>http://172.17.0.2:8081/</baseUrl>
     <uiTimeout>60000</uiTimeout>
   </restApi>
   <httpProxy>
@@ -49,7 +49,7 @@
         <url>https://repo1.maven.org/maven2/</url>
       </remoteStorage>
       <externalConfiguration>
-        <proxyMode>ALLOW</proxyMode>
+        <proxyMode>BLOCKED_AUTO</proxyMode>
         <artifactMaxAge>-1</artifactMaxAge>
         <itemMaxAge>1440</itemMaxAge>
         <cleanseRepositoryMetadata>false</cleanseRepositoryMetadata>
@@ -79,7 +79,7 @@
         <url>https://repository.apache.org/snapshots/</url>
       </remoteStorage>
       <externalConfiguration>
-        <proxyMode>ALLOW</proxyMode>
+        <proxyMode>BLOCKED_AUTO</proxyMode>
         <artifactMaxAge>1440</artifactMaxAge>
         <itemMaxAge>1440</itemMaxAge>
         <cleanseRepositoryMetadata>false</cleanseRepositoryMetadata>
@@ -115,25 +115,6 @@
       </externalConfiguration>
     </repository>
     <repository>
-      <id>central-m1</id>
-      <name>Central M1 shadow</name>
-      <providerRole>org.sonatype.nexus.proxy.repository.ShadowRepository</providerRole>
-      <providerHint>m2-m1-shadow</providerHint>
-      <localStatus>IN_SERVICE</localStatus>
-      <notFoundCacheTTL>15</notFoundCacheTTL>
-      <userManaged>true</userManaged>
-      <exposed>true</exposed>
-      <browseable>true</browseable>
-      <writePolicy>READ_ONLY</writePolicy>
-      <localStorage>
-        <provider>file</provider>
-      </localStorage>
-      <externalConfiguration>
-        <masterRepositoryId>central</masterRepositoryId>
-        <syncAtStartup>false</syncAtStartup>
-      </externalConfiguration>
-    </repository>
-    <repository>
       <id>public</id>
       <name>Public Repositories</name>
       <providerRole>org.sonatype.nexus.proxy.repository.GroupRepository</providerRole>
@@ -161,7 +142,7 @@
         </memberRepositories>
       </externalConfiguration>
     </repository>
-   <repository>
+    <repository>
       <id>jboss</id>
       <name>jboss</name>
       <providerRole>org.sonatype.nexus.proxy.repository.Repository</providerRole>
@@ -190,6 +171,7 @@
         <metadataMaxAge>1440</metadataMaxAge>
         <itemMaxAge>1440</itemMaxAge>
         <autoBlockActive>true</autoBlockActive>
+        <proxyMode>BLOCKED_AUTO</proxyMode>
       </externalConfiguration>
     </repository>
     <repository>
@@ -221,6 +203,7 @@
         <metadataMaxAge>1440</metadataMaxAge>
         <itemMaxAge>1440</itemMaxAge>
         <autoBlockActive>true</autoBlockActive>
+        <proxyMode>BLOCKED_AUTO</proxyMode>
       </externalConfiguration>
     </repository>
     <repository>
@@ -273,7 +256,7 @@
         <routePatterns>
           <routePattern>^/(com|de|ch)/axa/.*</routePattern>
         </routePatterns>
-		<repositories>
+        <repositories>
           <repository>axa-apps-releases</repository>
           <repository>axa-apps-snapshots</repository>
         </repositories>
@@ -285,14 +268,6 @@
       <id>1</id>
       <name>All (Maven2)</name>
       <contentClass>maven2</contentClass>
-      <patterns>
-        <pattern>.*</pattern>
-      </patterns>
-    </repositoryTarget>
-    <repositoryTarget>
-      <id>2</id>
-      <name>All (Maven1)</name>
-      <contentClass>maven1</contentClass>
       <patterns>
         <pattern>.*</pattern>
       </patterns>
@@ -358,8 +333,14 @@
     <hostname>smtp-host</hostname>
     <port>25</port>
     <username>smtp-username</username>
-    <password>{vqUkeVwoMQkHt4fPWu/1BpMA22rDCprAeArbaMRxy88=}</password>
+    <password>{3et2xeIgzHoH7jq4u1urIX6mmYgqI/jjVEhUjrKOvLc=}</password>
     <systemEmailAddress>system@nexus.org</systemEmailAddress>
   </smtpConfiguration>
-  <notification />
+  <notification>
+    <notificationTargets>
+      <notificationTarget>
+        <targetId>autoBlockTarget</targetId>
+      </notificationTarget>
+    </notificationTargets>
+  </notification>
 </nexusConfiguration>

@@ -52,8 +52,10 @@ RUN mkdir /conf
 RUN /usr/local/bin/fixPermissions.sh /conf
 
 # ADD nexus.xml as a workaround until post-deployment scripts work
-COPY scripts/nexus.xml $NEXUS_HOME/conf/
+COPY scripts/nexus.xml $NEXUS_WORK/conf/
+COPY scripts/security.xml $NEXUS_WORK/conf/
 RUN /usr/local/bin/fixPermissions.sh $NEXUS_HOME/conf
+RUN /usr/local/bin/fixPermissions.sh $NEXUS_WORK/conf
 
 USER jboss
 
