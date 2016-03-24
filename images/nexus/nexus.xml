@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <nexusConfiguration>
   <version>2.8.0</version>
-  <nexusVersion>2.12.0-01</nexusVersion>
+  <nexusVersion>2.11.4-01</nexusVersion>
   <globalConnectionSettings>
     <connectionTimeout>20000</connectionTimeout>
     <retrievalRetryCount>3</retrievalRetryCount>
@@ -12,11 +12,11 @@
       <proxyPort>8888</proxyPort>
     </httpProxySettings>
     <nonProxyHosts>
-      <nonProxyHost>.*\.pink\.eu-central-1\.aws\.openpaas\.axa-cloud\.com</nonProxyHost>
+      <nonProxyHost>.*\.pink\.eu-central-1\.aws.openpaas.axa-cloud.com</nonProxyHost>
     </nonProxyHosts>
   </remoteProxySettings>
   <restApi>
-    <baseUrl>http://nexus.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com/</baseUrl>
+    <baseUrl>http://172.17.0.2:8081/</baseUrl>
     <uiTimeout>60000</uiTimeout>
   </restApi>
   <httpProxy>
@@ -56,7 +56,7 @@
         <downloadRemoteIndex>false</downloadRemoteIndex>
         <checksumPolicy>WARN</checksumPolicy>
         <repositoryPolicy>RELEASE</repositoryPolicy>
-         </externalConfiguration>
+      </externalConfiguration>
     </repository>
     <repository>
       <id>apache-snapshots</id>
@@ -75,60 +75,11 @@
       <localStorage>
         <provider>file</provider>
       </localStorage>
-        <remoteStorage>
+      <remoteStorage>
         <url>https://repository.apache.org/snapshots/</url>
       </remoteStorage>
       <externalConfiguration>
         <proxyMode>BLOCKED_AUTO</proxyMode>
-        <artifactMaxAge>1440</artifactMaxAge>
-        <itemMaxAge>1440</itemMaxAge>
-        <cleanseRepositoryMetadata>false</cleanseRepositoryMetadata>
-        <downloadRemoteIndex>false</downloadRemoteIndex>
-        <checksumPolicy>WARN</checksumPolicy>
-        <repositoryPolicy>SNAPSHOT</repositoryPolicy>
-      </externalConfiguration>
-    </repository>
-    <repository>
-      <id>releases</id>
-      <name>Releases</name>
-      <providerRole>org.sonatype.nexus.proxy.repository.Repository</providerRole>
-      <providerHint>maven2</providerHint>
-      <localStatus>IN_SERVICE</localStatus>
-      <notFoundCacheTTL>1440</notFoundCacheTTL>
-      <userManaged>true</userManaged>
-      <exposed>true</exposed>
-      <browseable>true</browseable>
-      <writePolicy>ALLOW_WRITE_ONCE</writePolicy>
-      <indexable>true</indexable>
-      <searchable>true</searchable>
-      <localStorage>
-        <provider>file</provider>
-      </localStorage>
-      <externalConfiguration>
-<proxyMode>ALLOW</proxyMode>
-        <artifactMaxAge>-1</artifactMaxAge>
-        <itemMaxAge>1440</itemMaxAge>
-        <cleanseRepositoryMetadata>false</cleanseRepositoryMetadata>
-        <downloadRemoteIndex>false</downloadRemoteIndex>
-        <checksumPolicy>WARN</checksumPolicy>
-        <repositoryPolicy>RELEASE</repositoryPolicy>
-      </externalConfiguration>
-    </repository>
-    <repository>
-      <id>snapshots</id>
-      <name>Snapshots</name>
-      <providerRole>org.sonatype.nexus.proxy.repository.Repository</providerRole>
-      <providerHint>maven2</providerHint>
-      <localStatus>IN_SERVICE</localStatus>
-      <notFoundCacheTTL>1440</notFoundCacheTTL>
-      <userManaged>true</userManaged>
-      <exposed>true</exposed>
-      <browseable>true</browseable>
-      <localStorage>
-        <provider>file</provider>
-      </localStorage>
-      <externalConfiguration>
-        <proxyMode>ALLOW</proxyMode>
         <artifactMaxAge>1440</artifactMaxAge>
         <itemMaxAge>1440</itemMaxAge>
         <cleanseRepositoryMetadata>false</cleanseRepositoryMetadata>
@@ -145,7 +96,7 @@
       <localStatus>IN_SERVICE</localStatus>
       <notFoundCacheTTL>1440</notFoundCacheTTL>
       <userManaged>true</userManaged>
-<exposed>true</exposed>
+      <exposed>true</exposed>
       <browseable>true</browseable>
       <writePolicy>ALLOW_WRITE_ONCE</writePolicy>
       <indexable>true</indexable>
@@ -164,26 +115,8 @@
       </externalConfiguration>
     </repository>
     <repository>
-      <id>central-m1</id>
-   <providerRole>org.sonatype.nexus.proxy.repository.ShadowRepository</providerRole>
-      <providerHint>m2-m1-shadow</providerHint>
-      <localStatus>IN_SERVICE</localStatus>
-      <notFoundCacheTTL>15</notFoundCacheTTL>
-      <userManaged>true</userManaged>
-      <exposed>true</exposed>
-      <browseable>true</browseable>
-      <writePolicy>READ_ONLY</writePolicy>
-      <localStorage>
-        <provider>file</provider>
-      </localStorage>
-      <externalConfiguration>
-        <masterRepositoryId>central</masterRepositoryId>
-        <syncAtStartup>false</syncAtStartup>
-      </externalConfiguration>
-    </repository>
-    <repository>
       <id>public</id>
-<name>Public Repositories</name>
+      <name>Public Repositories</name>
       <providerRole>org.sonatype.nexus.proxy.repository.GroupRepository</providerRole>
       <providerHint>maven2</providerHint>
       <localStatus>IN_SERVICE</localStatus>
@@ -199,11 +132,118 @@
       <externalConfiguration>
         <mergeMetadata>true</mergeMetadata>
         <memberRepositories>
-          <memberRepository>releases</memberRepository>
-          <memberRepository>snapshots</memberRepository>
+          <memberRepository>axa-apps-releases</memberRepository>
+          <memberRepository>axa-apps-snapshots</memberRepository>
           <memberRepository>thirdparty</memberRepository>
-<memberRepository>central</memberRepository>
+          <memberRepository>central</memberRepository>
+          <memberRepository>apache-snapshots</memberRepository>
+          <memberRepository>jboss</memberRepository>
+          <memberRepository>jboss-ce</memberRepository>
         </memberRepositories>
+      </externalConfiguration>
+    </repository>
+    <repository>
+      <id>jboss</id>
+      <name>jboss</name>
+      <providerRole>org.sonatype.nexus.proxy.repository.Repository</providerRole>
+      <providerHint>maven2</providerHint>
+      <localStatus>IN_SERVICE</localStatus>
+      <notFoundCacheActive>true</notFoundCacheActive>
+      <notFoundCacheTTL>1440</notFoundCacheTTL>
+      <userManaged>true</userManaged>
+      <exposed>true</exposed>
+      <browseable>true</browseable>
+      <writePolicy>READ_ONLY</writePolicy>
+      <indexable>true</indexable>
+      <searchable>true</searchable>
+      <localStorage>
+        <provider>file</provider>
+      </localStorage>
+      <remoteStorage>
+        <url>http://maven.repository.redhat.com/techpreview/all/</url>
+      </remoteStorage>
+      <externalConfiguration>
+        <repositoryPolicy>RELEASE</repositoryPolicy>
+        <checksumPolicy>WARN</checksumPolicy>
+        <fileTypeValidation>true</fileTypeValidation>
+        <downloadRemoteIndex>true</downloadRemoteIndex>
+        <artifactMaxAge>-1</artifactMaxAge>
+        <metadataMaxAge>1440</metadataMaxAge>
+        <itemMaxAge>1440</itemMaxAge>
+        <autoBlockActive>true</autoBlockActive>
+        <proxyMode>BLOCKED_AUTO</proxyMode>
+      </externalConfiguration>
+    </repository>
+    <repository>
+      <id>jboss-ce</id>
+      <name>jboss-ce</name>
+      <providerRole>org.sonatype.nexus.proxy.repository.Repository</providerRole>
+      <providerHint>maven2</providerHint>
+      <localStatus>IN_SERVICE</localStatus>
+      <notFoundCacheActive>true</notFoundCacheActive>
+      <notFoundCacheTTL>1440</notFoundCacheTTL>
+      <userManaged>true</userManaged>
+      <exposed>true</exposed>
+      <browseable>true</browseable>
+      <writePolicy>READ_ONLY</writePolicy>
+      <indexable>true</indexable>
+      <searchable>true</searchable>
+      <localStorage>
+        <provider>file</provider>
+      </localStorage>
+      <remoteStorage>
+        <url>https://repository.jboss.org/nexus/content/groups/public/</url>
+      </remoteStorage>
+      <externalConfiguration>
+        <repositoryPolicy>RELEASE</repositoryPolicy>
+        <checksumPolicy>WARN</checksumPolicy>
+        <fileTypeValidation>true</fileTypeValidation>
+        <downloadRemoteIndex>true</downloadRemoteIndex>
+        <artifactMaxAge>-1</artifactMaxAge>
+        <metadataMaxAge>1440</metadataMaxAge>
+        <itemMaxAge>1440</itemMaxAge>
+        <autoBlockActive>true</autoBlockActive>
+        <proxyMode>BLOCKED_AUTO</proxyMode>
+      </externalConfiguration>
+    </repository>
+    <repository>
+      <id>axa-apps-releases</id>
+      <name>axa-apps-releases</name>
+      <providerRole>org.sonatype.nexus.proxy.repository.Repository</providerRole>
+      <providerHint>maven2</providerHint>
+      <localStatus>IN_SERVICE</localStatus>
+      <notFoundCacheTTL>1440</notFoundCacheTTL>
+      <userManaged>true</userManaged>
+      <exposed>true</exposed>
+      <browseable>true</browseable>
+      <writePolicy>ALLOW_WRITE</writePolicy>
+      <indexable>true</indexable>
+      <searchable>true</searchable>
+      <localStorage>
+        <provider>file</provider>
+      </localStorage>
+      <externalConfiguration>
+        <repositoryPolicy>RELEASE</repositoryPolicy>
+      </externalConfiguration>
+    </repository>
+    <repository>
+      <id>axa-apps-snapshots</id>
+      <name>axa-apps-snapshots</name>
+      <providerRole>org.sonatype.nexus.proxy.repository.Repository</providerRole>
+      <providerHint>maven2</providerHint>
+      <localStatus>IN_SERVICE</localStatus>
+      <notFoundCacheTTL>1440</notFoundCacheTTL>
+      <userManaged>true</userManaged>
+      <exposed>true</exposed>
+      <browseable>true</browseable>
+      <writePolicy>ALLOW_WRITE</writePolicy>
+      <indexable>true</indexable>
+      <searchable>true</searchable>
+      <localStorage>
+        <provider>file</provider>
+      </localStorage>
+      <externalConfiguration>
+        <repositoryPolicy>SNAPSHOT</repositoryPolicy>
       </externalConfiguration>
     </repository>
   </repositories>
@@ -214,23 +254,11 @@
         <groupId>*</groupId>
         <routeType>inclusive</routeType>
         <routePatterns>
-          <routePattern>^/(com|org)/somecompany/.*</routePattern>
+          <routePattern>^/(com|de|ch)/axa/.*</routePattern>
         </routePatterns>
         <repositories>
-          <repository>snapshots</repository>
-          <repository>releases</repository>
-        </repositories>
-      </pathMapping>
-      <pathMapping>
-        <id>apache-stuff</id>
-        <groupId>*</groupId>
-        <routeType>exclusive</routeType>
-        <routePatterns>
-          <routePattern>^/org/some-oss/.*</routePattern>
-        </routePatterns>
-        <repositories>
-          <repository>releases</repository>
-          <repository>snapshots</repository>
+          <repository>axa-apps-releases</repository>
+          <repository>axa-apps-snapshots</repository>
         </repositories>
       </pathMapping>
     </pathMappings>
@@ -245,14 +273,6 @@
       </patterns>
     </repositoryTarget>
     <repositoryTarget>
-      <id>2</id>
-      <name>All (Maven1)</name>
-      <contentClass>maven1</contentClass>
-      <patterns>
-        <pattern>.*</pattern>
-      </patterns>
-    </repositoryTarget>
-    <repositoryTarget>
       <id>3</id>
       <name>All but sources (Maven2)</name>
       <contentClass>maven2</contentClass>
@@ -262,7 +282,7 @@
     </repositoryTarget>
     <repositoryTarget>
       <id>4</id>
- <name>All Metadata (Maven2)</name>
+      <name>All Metadata (Maven2)</name>
       <contentClass>maven2</contentClass>
       <patterns>
         <pattern>.*maven-metadata\.xml.*</pattern>
@@ -282,14 +302,6 @@
       <contentClass>site</contentClass>
       <patterns>
         <pattern>.*</pattern>
-                 </patterns>
-    </repositoryTarget>
-    <repositoryTarget>
-      <id>rubygems</id>
-      <name>All (rubygems)</name>
-      <contentClass>rubygems</contentClass>
-      <patterns>
-        <pattern>.*</pattern>
       </patterns>
     </repositoryTarget>
     <repositoryTarget>
@@ -302,7 +314,17 @@
     </repositoryTarget>
     <repositoryTarget>
       <id>nuget</id>
-  <patterns>
+      <name>All (nuget)</name>
+      <contentClass>nuget</contentClass>
+      <patterns>
+        <pattern>.*</pattern>
+      </patterns>
+    </repositoryTarget>
+    <repositoryTarget>
+      <id>rubygems</id>
+      <name>All (rubygems)</name>
+      <contentClass>rubygems</contentClass>
+      <patterns>
         <pattern>.*</pattern>
       </patterns>
     </repositoryTarget>
@@ -311,7 +333,7 @@
     <hostname>smtp-host</hostname>
     <port>25</port>
     <username>smtp-username</username>
-    <password>{FKQ3K7FvdY0HEml4DwJGHTElig+UowEBSdb+IPYIDXA=}</password>
+    <password>{3et2xeIgzHoH7jq4u1urIX6mmYgqI/jjVEhUjrKOvLc=}</password>
     <systemEmailAddress>system@nexus.org</systemEmailAddress>
   </smtpConfiguration>
   <notification>
