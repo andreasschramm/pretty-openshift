@@ -37,13 +37,11 @@ RUN groupadd -r jboss -g 185 && useradd -u 185 -r -g jboss -m -d /home/jboss -s 
 
 COPY scripts/readinessProbe.sh /usr/local/bin/readinessProbe.sh
 COPY scripts/fixPermissions.sh /usr/local/bin/fixPermissions.sh
-COPY scripts/addrepo.sh /usr/local/bin/addrepo.sh
-COPY scripts/addjbossrepos.sh /usr/local/bin/addjbossrepos.sh
+
 
 RUN chmod 755 /usr/local/bin/fixPermissions.sh 
 RUN chmod 755 /usr/local/bin/readinessProbe.sh
-RUN chmod 755 /usr/local/bin/addrepo.sh
-RUN chmod 755 /usr/local/bin/addjbossrepos.sh
+
 RUN  /usr/local/bin/fixPermissions.sh /opt/nexus
 RUN  /usr/local/bin/fixPermissions.sh $NEXUS_WORK
 RUN  /usr/local/bin/fixPermissions.sh $NEXUS_REPOS
@@ -54,6 +52,8 @@ RUN /usr/local/bin/fixPermissions.sh /conf
 # ADD nexus.xml as a workaround until post-deployment scripts work
 COPY scripts/nexus.xml $NEXUS_HOME/conf/
 COPY scripts/security.xml $NEXUS_HOME/conf/
+COPY scripts/nexus.xml $NEXUS_WORK/conf/
+COPY scripts/security.xml $NEXUS_WORK/conf/
 RUN /usr/local/bin/fixPermissions.sh $NEXUS_HOME/conf
 RUN /usr/local/bin/fixPermissions.sh $NEXUS_WORK/conf
 
@@ -70,7 +70,6 @@ ENV JAVA_OPTS -server -XX:MaxPermSize=192m -Djava.net.preferIPv4Stack=true
 ENV LAUNCHER_CONF ${NEXUS_HOME}/conf/jetty.xml ${NEXUS_HOME}/conf/jetty-requestlog.xml
 CMD java \
   -Dnexus-work=${NEXUS_WORK} -Dnexus-webapp-context-path=${CONTEXT_PATH} -Dapplication-conf=${NEXUS_HOME}/conf \
-  -Dconfiguration-file=${NEXUS_WORK}/conf/nexus.xml \
   -Xms${MIN_HEAP} -Xmx${MAX_HEAP} \
   -cp '/opt/nexus/nexus/conf/:/opt/nexus/nexus/lib/*' \
   ${JAVA_OPTS} \
