@@ -1,52 +1,134 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
-	
+
+
 	<groupId>de.axa.cloud</groupId>
 	<artifactId>war2image-downloadhelper</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-
+	<description>Dieser wundervolle Chimäre dient dazu, im s2i builder
+	ein vorgebautes war aus dem Nexus zu laden, und in ein Docker-Image zu injezieren.
+	Dabei nutzen wir den s2i Builder von openshift, der automatisch</description>
 
 	<build>
 		<plugins>
 			<plugin>
-			    <artifactId>maven-dependency-plugin</artifactId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>2.4</version>
 				<executions>
 					<execution>
-						<id>copy-dependencies</id>
-						<phase>initialize</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>target</outputDirectory>
-							<stripVersion>true</stripVersion>
-							<overWriteReleases>true</overWriteReleases>
-							<overWriteSnapshots>true</overWriteSnapshots>
-						</configuration>
+						<id>default-install</id>
+						<phase>NEVER</phase>
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
 	</build>
-		
+
 	<dependencies>
-		<dependency>
-			<groupId>${axa.deployment.groupId}</groupId>
-			<artifactId>${axa.deployment.artifactId}</artifactId>
-			<version>${axa.deployment.version}</version>
-		        <type>${axa.deployment.type}</type>
-			<classifier>${axa.deployment.classifier}</classifier>
-		</dependency>
-        </dependencies>
-		
+	</dependencies>
+
 	<properties>
-	    <axa.deployment.groupId>${env.AXA_DEPLOYMENT_GROUP_ID}</axa.deployment.groupId>
-	    <axa.deployment.artifactId>${env.AXA_DEPLOYMENT_ARTIFACT_ID}</axa.deployment.artifactId>
-	    <axa.deployment.version>${env.AXA_DEPLOYMENT_VERSION}</axa.deployment.version>
-	    <axa.deployment.type>${env.AXA_DEPLOYMENT_TYPE}</axa.deployment.type>
-	    <axa.deployment.classifier>${env.AXA_DEPLOYMENT_CLASSIFIER}</axa.deployment.classifier>
+		<axa.deployment.groupId>${env.AXA_DEPLOYMENT_GROUP_ID}</axa.deployment.groupId>
+		<axa.deployment.artifactId>${env.AXA_DEPLOYMENT_ARTIFACT_ID}</axa.deployment.artifactId>
+		<axa.deployment.version>${env.AXA_DEPLOYMENT_VERSION}</axa.deployment.version>
+		<axa.deployment.type />
+		<axa.deployment.classifier />
+
+		<axa.deployment.context>${axa.deployment.artifactId}</axa.deployment.context>
+
+		<s2i.targetDirectory>deployments</s2i.targetDirectory>
 	</properties>
-	
+
+	<profiles>
+		<profile>
+			<id>openshift</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>build-helper-maven-plugin</artifactId>
+						<version>1.10</version>
+						<executions>
+							<execution>
+								<id>regex-property</id>
+								<phase>initialize</phase>
+								<goals>
+									<goal>regex-property</goal>
+								</goals>
+								<configuration>
+									<name>axa.deployment.groupId.withdot</name>
+									<value>${env.AXA_DEPLOYMENT_GROUP_ID}</value>
+									<regex>/</regex>
+									<replacement>.</replacement>
+									<failIfNoMatch>false</failIfNoMatch>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-dependencies</id>
+								<phase>initialize</phase>
+								<goals>
+									<goal>copy</goal>
+								</goals>
+								<configuration>
+									<artifactItems>
+										<artifactItem>
+											<groupId>${axa.deployment.groupId.withdot}</groupId>
+											<artifactId>${axa.deployment.artifactId}</artifactId>
+											<version>${axa.deployment.version}</version>
+											<type>${axa.deployment.type}</type>
+											<classifier>${axa.deployment.classifier}</classifier>
+											<outputDirectory>${s2i.targetDirectory}</outputDirectory>
+											<destFileName>${axa.deployment.context}.${axa.deployment.type}</destFileName>
+										</artifactItem>
+									</artifactItems>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>has-classifier</id>
+			<activation>
+				<property>
+					<name>env.AXA_DEPLOYMENT_CLASSIFIER</name>
+				</property>
+			</activation>
+			<properties>
+				<axa.deployment.classifier>${env.AXA_DEPLOYMENT_CLASSIFIER}</axa.deployment.classifier>
+			</properties>
+		</profile>
+		<profile>
+			<id>has-type</id>
+			<activation>
+				<property>
+					<name>env.AXA_DEPLOYMENT_TYPE</name>
+				</property>
+			</activation>
+			<properties>
+				<axa.deployment.type>${env.AXA_DEPLOYMENT_TYPE}</axa.deployment.type>
+			</properties>
+		</profile>
+		<profile>
+			<id>has-deployment-context</id>
+			<activation>
+				<property>
+					<name>env.AXA_DEPLOYMENT_CONTEXT</name>
+				</property>
+			</activation>
+			<properties>
+				<axa.deployment.context>${env.AXA_DEPLOYMENT_CONTEXT}</axa.deployment.context>
+			</properties>
+		</profile>
+	</profiles>
+
 </project>
