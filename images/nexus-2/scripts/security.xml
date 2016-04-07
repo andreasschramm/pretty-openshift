@@ -33,6 +33,7 @@
       <source>default</source>
       <roles>
         <role>nx-deployment</role>
+        <role>repo-all-full</role>
       </roles>
     </userRoleMapping>
     <userRoleMapping>
@@ -43,11 +44,11 @@
       </roles>
     </userRoleMapping>
     <userRoleMapping>
-      <userId>download</userId>
+      <userId>TU_Cloud_Builder</userId>
       <source>default</source>
       <roles>
-        <role>any-all-view</role>
-        <role>repository-any-read</role>
+        <role>nx-deployment</role>
+        <role>repo-all-full</role>
       </roles>
     </userRoleMapping>
   </userRoleMappings>
