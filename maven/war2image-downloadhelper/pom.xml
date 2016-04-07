@@ -9,7 +9,8 @@
 	<packaging>pom</packaging>
 	<description>Dieser wundervolle Chimäre dient dazu, im s2i builder
 	ein vorgebautes war aus dem Nexus zu laden, und in ein Docker-Image zu injezieren.
-	Dabei nutzen wir den s2i Builder von openshift, der automatisch</description>
+	Dabei nutzen wir den s2i Builder von openshift, der automatisch bei Auffinden einer pom.xml
+	 eine maven build startet. Es wird dabei nichts installiert oder deployt, das artefakt wandert nur in den container</description>
 
 	<build>
 		<plugins>
@@ -37,7 +38,7 @@
 		<axa.deployment.type />
 		<axa.deployment.classifier />
 
-		<axa.deployment.context>${axa.deployment.artifactId}</axa.deployment.context>
+		<axa.deployment.context>ROOT</axa.deployment.context>
 
 		<s2i.targetDirectory>deployments</s2i.targetDirectory>
 	</properties>
