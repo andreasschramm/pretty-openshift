@@ -1,5 +1,5 @@
 
-FROM jeanblanchard/alpine-glibc
+FROM jeanblanchard/java:8
 
 MAINTAINER andreas.schramm@axa.de
 
