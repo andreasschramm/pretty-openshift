@@ -4,7 +4,7 @@
     "metadata": {
         "annotations": {
             "iconClass": "icon-tomcat",
-            "description": "Application template for Tomcat8 / bin deploy from nexus.",
+            "description": "AXAApplication template for Tomcat8 / bin deploy from nexus.",
             "tags": "tomcat,tomcat8,java,xpaas,axa",
             "version": "1.2.0"
         },
