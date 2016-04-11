@@ -19,8 +19,8 @@
       <email>gjtc@axa.de</email>
     </user>
     <user>
-      <id>download</id>
-      <firstName>Download User</firstName>
+      <id>TU_Cloud_Builder</id>
+      <firstName>TU_Cloud_Builder</firstName>
       <lastName>for cloud builders</lastName>
       <password>$shiro1$SHA-512$1024$5a80B9vR5TeUxikXZz8mFw==$vlj3DTQU1khqvF+lLUlQpDPThYm8BwyVjwhG7fdwoQKw1OKCrjzDXs/GQ3xP7ztScrss4hNc8v7OKGrY77hGwA==</password>
       <status>active</status>
