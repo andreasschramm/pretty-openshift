@@ -30,11 +30,11 @@
       <New id="HTTPSConnector" class="org.sonatype.nexus.bootstrap.jetty.InstrumentedSslSelectChannelConnector">
         <Arg>
           <New class="org.eclipse.jetty.util.ssl.SslContextFactory">
-            <Set name="keyStore">./conf/ssl/keystore.jks</Set>
-            <Set name="trustStore">./conf/ssl/keystore.jks</Set>
-            <Set name="keyStorePassword">OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v</Set>
-            <Set name="keyManagerPassword">OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v</Set>
-            <Set name="trustStorePassword">OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v</Set>
+            <Set name="keyStore">./conf/nexus.jks</Set>
+            <Set name="trustStore">./conf/nexus.jks</Set>
+            <Set name="keyStorePassword">changeit</Set>
+            <Set name="keyManagerPassword">changeit</Set>
+            <Set name="trustStorePassword">changeit</Set>
             <Set name="excludeProtocols">
               <Array type="java.lang.String">
                 <Item>SSL</Item>
