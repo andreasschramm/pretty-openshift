@@ -45,7 +45,6 @@ RUN chmod 755 /usr/local/bin/readinessProbe.sh
 COPY scripts/nexus.xml $NEXUS_WORK/conf/
 COPY scripts/security.xml $NEXUS_WORK/conf/
 
-COPY scripts/nexus.jks $NEXUS_HOME/conf/
 COPY scripts/nexus.properties $NEXUS_HOME/conf/
 COPY scripts/jetty-https.xml $NEXUS_HOME/conf/
 
@@ -64,9 +63,13 @@ ENV MAX_HEAP 768m
 ENV MIN_HEAP 256m
 ENV JAVA_OPTS -server -XX:MaxPermSize=192m -Djava.net.preferIPv4Stack=true
 ENV LAUNCHER_CONF ${NEXUS_HOME}/conf/jetty.xml ${NEXUS_HOME}/conf/jetty-requestlog.xml ${NEXUS_HOME}/conf/jetty-https.xml
-CMD java \
+ENV SSL_KEYPASSWORD changeit
+ENV SSL_PASSWORD changeit
+CMD [ -z SSL_KEYPASSWORD ] ||  java \
   -Dnexus-work=${NEXUS_WORK} -Dnexus-webapp-context-path=${CONTEXT_PATH} -Dapplication-conf=${NEXUS_HOME}/conf \
   -Xms${MIN_HEAP} -Xmx${MAX_HEAP} \
   -cp '/opt/nexus/nexus/conf/:/opt/nexus/nexus/lib/*' \
   ${JAVA_OPTS} \
+  -Dorg.eclipse.jetty.ssl.keypassword=${SSL_KEYPASSWORD} \
+  -Dorg.eclipse.jetty.ssl.password=${SSL_PASSWORD} \
   org.sonatype.nexus.bootstrap.Launcher ${LAUNCHER_CONF}
