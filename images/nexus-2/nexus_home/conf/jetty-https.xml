@@ -32,6 +32,7 @@
           <New class="org.eclipse.jetty.util.ssl.SslContextFactory">
             <Set name="keyStore">/secret/nexus-keystore</Set>
             <Set name="trustStore">/secret/nexus-keystore</Set>
+            <Set name="certAlias">nexus</Set>
             <Set name="excludeProtocols">
               <Array type="java.lang.String">
                 <Item>SSL</Item>
