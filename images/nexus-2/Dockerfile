@@ -1,10 +1,6 @@
 FROM centos:7
 
-ENV NEXUS_VERSION 2.11.4-01
-ENV NEXUS_HOME /opt/nexus/nexus
-ENV NEXUS_WORK /sonatype-work
-ENV NEXUS_REPOS /repositories
-
+#Donwload jdk
 #http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-x64.rpm
 RUN cd /var/tmp \
   && curl --fail --silent --location --retry 3 -O \
@@ -12,6 +8,9 @@ RUN cd /var/tmp \
   http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-x64.rpm \
   && rpm -Ui jdk-7u79-linux-x64.rpm \
   && rm -rf jdk-7u79-linux-x64.rpm
+
+#Download neuxs
+ENV NEXUS_VERSION 2.11.4-01
 
 # Install the binaries
 RUN mkdir -p /opt/nexus/nexus \
@@ -22,11 +21,18 @@ RUN mkdir -p /opt/nexus/nexus \
   && mv /tmp/nexus-${NEXUS_VERSION}/* /opt/nexus/nexus/ \
   && rm -rf /tmp/nexus-${NEXUS_VERSION}
 
+
+#configure nexus
+ENV NEXUS_HOME /opt/nexus/nexus
+ENV NEXUS_WORK /sonatype-work
+ENV NEXUS_REPOS /repositories
+
 RUN  chmod 777 $NEXUS_HOME \
    && mkdir -p $NEXUS_WORK && chmod -R 777 $NEXUS_WORK \
    && mkdir -p $NEXUS_REPOS && chmod -R 777 $NEXUS_REPOS
 
 RUN groupadd -r jboss -g 185 && useradd -u 185 -r -g jboss -m -d /home/jboss -s /sbin/nologin -c "JBoss user" jboss
+
 
 COPY scripts/* /usr/local/bin/
 
@@ -42,6 +48,7 @@ RUN chmod 755 /usr/local/bin/readinessProbe.sh
 RUN  /usr/local/bin/fixPermissions.sh /opt/nexus
 RUN  /usr/local/bin/fixPermissions.sh $NEXUS_WORK
 RUN  /usr/local/bin/fixPermissions.sh $NEXUS_REPOS
+RUN  /usr/local/bin/fixPermissions.sh /secret
 
 VOLUME ["/sonatype-work", "/repositories", "/secret"]
 
@@ -59,9 +66,9 @@ ENV SSL_KEYPASSWORD changeit
 ENV SSL_PASSWORD changeit
 CMD java \
   -Dnexus-work=${NEXUS_WORK} -Dnexus-webapp-context-path=${CONTEXT_PATH} -Dapplication-conf=${NEXUS_HOME}/conf \
+  -Dorg.eclipse.jetty.ssl.keypassword=${SSL_KEYPASSWORD} \
+  -Dorg.eclipse.jetty.ssl.password=${SSL_PASSWORD} \
   -Xms${MIN_HEAP} -Xmx${MAX_HEAP} \
   -cp '/opt/nexus/nexus/conf/:/opt/nexus/nexus/lib/*' \
   ${JAVA_OPTS} \
-  -Dorg.eclipse.jetty.ssl.keypassword=${SSL_KEYPASSWORD} \
-  -Dorg.eclipse.jetty.ssl.password=${SSL_PASSWORD} \
   org.sonatype.nexus.bootstrap.Launcher ${LAUNCHER_CONF}
