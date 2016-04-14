@@ -5,12 +5,13 @@ ENV NEXUS_HOME /opt/nexus/nexus
 ENV NEXUS_WORK /sonatype-work
 ENV NEXUS_REPOS /repositories
 
+#http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-x64.rpm
 RUN cd /var/tmp \
   && curl --fail --silent --location --retry 3 -O \
   --header "Cookie: oraclelicense=accept-securebackup-cookie; " \
-  http://download.oracle.com/otn-pub/java/jdk/7u76-b13/jdk-7u76-linux-x64.rpm \
-  && rpm -Ui jdk-7u76-linux-x64.rpm \
-  && rm -rf jdk-7u76-linux-x64.rpm
+  http://download.oracle.com/otn-pub/java/jdk/7u79-b15/jdk-7u79-linux-x64.rpm \
+  && rpm -Ui jdk-7u79-linux-x64.rpm \
+  && rm -rf jdk-7u79-linux-x64.rpm
 
 # Install the binaries
 RUN mkdir -p /opt/nexus/nexus \
@@ -29,11 +30,11 @@ RUN groupadd -r jboss -g 185 && useradd -u 185 -r -g jboss -m -d /home/jboss -s 
 
 COPY scripts/* /usr/local/bin/
 
-COPY nexus_work/* $NEXUS_WORK/
+COPY nexus_work $NEXUS_WORK/
 
-COPY nexus_home/* $NEXUS_HOME/
+COPY nexus_home $NEXUS_HOME/
 
-COPY secret/* /secret
+COPY secret /secret
 
 RUN chmod 755 /usr/local/bin/fixPermissions.sh
 RUN chmod 755 /usr/local/bin/readinessProbe.sh
