@@ -30,8 +30,8 @@
       <New id="HTTPSConnector" class="org.sonatype.nexus.bootstrap.jetty.InstrumentedSslSelectChannelConnector">
         <Arg>
           <New class="org.eclipse.jetty.util.ssl.SslContextFactory">
-            <Set name="keyStore">/secret/nexus-keystore</Set>
-            <Set name="trustStore">/secret/nexus-keystore</Set>
+            <Set name="keyStore">/secret/nexus-keystore.jks</Set>
+            <Set name="trustStore">/secret/nexus-keystore.jks</Set>
             <Set name="certAlias">nexus</Set>
             <Set name="excludeProtocols">
               <Array type="java.lang.String">
