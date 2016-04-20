@@ -62,9 +62,11 @@ ENV MAX_HEAP 768m
 ENV MIN_HEAP 256m
 ENV JAVA_OPTS -server -XX:MaxPermSize=192m -Djava.net.preferIPv4Stack=true
 ENV LAUNCHER_CONF ${NEXUS_HOME}/conf/jetty.xml ${NEXUS_HOME}/conf/jetty-requestlog.xml ${NEXUS_HOME}/conf/jetty-https.xml
-ENV SSL_KEYPASSWORD changeit
-ENV SSL_PASSWORD changeit
-CMD java \
+
+CMD cat /secret/ssl-keypassword \
+	&& SSL_PASSWORD=`cat /secret/ssl-password` \
+	&& SSL_KEYPASSWORD=`cat /secret/ssl-keypassword` \
+	&& java \
   -Dnexus-work=${NEXUS_WORK} -Dnexus-webapp-context-path=${CONTEXT_PATH} -Dapplication-conf=${NEXUS_HOME}/conf \
   -Dorg.eclipse.jetty.ssl.keypassword=`cat /secret/ssl-keypassword` \
   -Dorg.eclipse.jetty.ssl.password=`cat /secret/ssl-password` \

@@ -33,6 +33,9 @@
             <Set name="keyStore">/secret/nexus-keystore.jks</Set>
             <Set name="trustStore">/secret/nexus-keystore.jks</Set>
             <Set name="certAlias">nexus</Set>
+            <Set name="keyStorePassword"><Env name="SSL_PASSWORD"/></Set>
+            <Set name="keyManagerPassword"><Env name="SSL_KEYPASSWORD"/></Set>
+            <Set name="trustStorePassword"><Env name="SSL_PASSWORD"/></Set>
             <Set name="excludeProtocols">
               <Array type="java.lang.String">
                 <Item>SSL</Item>
