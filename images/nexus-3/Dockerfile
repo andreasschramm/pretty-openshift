@@ -7,7 +7,6 @@ ENV NEXUS_VERSION 3.0.0-b2015110601
 RUN mkdir -p /opt/nexus/nexus \
     &&  apk add --update curl && \
     && curl --fail --silent --location --retry 3 \
-    https://download.sonatype.com/nexus/oss/nexus-${NEXUS_VERSION}-bundle.tar.gz \
     https://sonatype-download.global.ssl.fastly.net/nexus/oss/nexus-installer-${NEXUS_VERSION}-unix-archive.tar.gz
     | gunzip \
     | tar x -C /tmp nexus-${NEXUS_VERSION} \
