@@ -25,24 +25,19 @@ RUN  chmod 777 $NEXUS_HOME \
 
 RUN groupadd -r jboss -g 185 && useradd -u 185 -r -g jboss -m -d /home/jboss -s /sbin/nologin -c "JBoss user" jboss
 
-
-COPY scripts/* /usr/local/bin/
-
 COPY nexus_work $NEXUS_WORK/
 
 COPY nexus_home $NEXUS_HOME/
 
 COPY secret /secret
 
-RUN chmod 755 /usr/local/bin/fixPermissions.sh
-RUN chmod 755 /usr/local/bin/readinessProbe.sh
 
-RUN  /usr/local/bin/fixPermissions.sh /opt/nexus
-RUN  /usr/local/bin/fixPermissions.sh $NEXUS_WORK
-RUN  /usr/local/bin/fixPermissions.sh $NEXUS_REPOS
-RUN  /usr/local/bin/fixPermissions.sh /secret
+RUN  chmod -R a+rX /opt/nexus
+RUN  chmod -R a+rX  $NEXUS_WORK
+RUN  chmod -R a+rX  $NEXUS_REPOS
+RUN  chmod -R a+rX  /secret
 
-VOLUME ["/sonatype-work", "/repositories", "/secret"]
+VOLUME ["${NEXUS_WORK}", "${NEXUS_REPOS}", "/secret"]
 
 USER jboss
 WORKDIR $NEXUS_HOME
@@ -55,8 +50,7 @@ ENV MIN_HEAP 256m
 ENV JAVA_OPTS -server -XX:MaxPermSize=192m -Djava.net.preferIPv4Stack=true
 ENV LAUNCHER_CONF ${NEXUS_HOME}/conf/jetty.xml ${NEXUS_HOME}/conf/jetty-requestlog.xml ${NEXUS_HOME}/conf/jetty-https.xml
 
-CMD cat /secret/ssl-keypassword \
-	&& SSL_PASSWORD=`cat /secret/ssl-password` \
+CMD SSL_PASSWORD=`cat /secret/ssl-password` \
 	&& SSL_KEYPASSWORD=`cat /secret/ssl-keypassword` \
 	&& java \
   -Dnexus-work=${NEXUS_WORK} -Dnexus-webapp-context-path=${CONTEXT_PATH} -Dapplication-conf=${NEXUS_HOME}/conf \
