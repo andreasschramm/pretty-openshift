@@ -67,6 +67,8 @@ CMD SSL_PASSWORD=`cat /secret/ssl-password` \
 	&& SSL_KEYPASSWORD=`cat /secret/ssl-keypassword` \
 	&& java \
   -Dnexus-work=${NEXUS_WORK} -Dnexus-webapp-context-path=${CONTEXT_PATH} -Dapplication-conf=${NEXUS_HOME}/conf \
+  -Dorg.eclipse.jetty.ssl.keypassword=`cat /secret/ssl-keypassword` \
+  -Dorg.eclipse.jetty.ssl.password=`cat /secret/ssl-password` \
   -Xms${MIN_HEAP} -Xmx${MAX_HEAP} \
   -cp '/opt/nexus/nexus/conf/:/opt/nexus/nexus/lib/*' \
   ${JAVA_OPTS} \
