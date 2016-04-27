@@ -1,18 +1,74 @@
 #!/bin/sh
 #we might run inside busybox ash, no bash syntax
 
-DEPLOY_DIR=${DEPLOY_DIR-/opt/openshift}
-if [ -n "$JBOSS_HOME" ]; then
-	DEPLOY_DIR=$JBOSS_HOME/standalone/deployments
-else if [ -n "$JWS_HOME" ]; then
-	DEPLOY_DIR=$JWS_HOME/webapps
+echo "Axa - Custom code for deployment"
+if [ -z "$DEPLOY_DIR" ]; then
+	DEPLOY_DIR=/opt/openshift
+	if [ -n "$JBOSS_HOME" ]; then
+		DEPLOY_DIR=$JBOSS_HOME/standalone/deployments
+	elif [ -n "$JWS_HOME" ]; then
+		DEPLOY_DIR=$JWS_HOME/webapps
+	fi
+fi
+echo "deploying to $DEPLOY_DIR"
+if [ ! -d "$DEPLOY_DIR" ]; then
+	mkdir "$DEPLOY_DIR"
 fi
 
-
-echo " Axa - Custom code for binary deployment"
 # Picks up WAR_FILE_URL from buildConfig
-if[ -n "$WAR_FILE_URL" ]; then
-  	EXTENSION=$(".${WAR_FILE_URL##*.})
-  	echo "url: ${WAR_FILE_URL} ext: $EXTENSION"
-  	curl -o ${DEPLOY_DIR}/ROOT${EXTENSION} -O ${WAR_FILE_URL}
+if [ -z "$WAR_FILE_URL" ]; then
+	if [ -z "$ARTIFACT_ID" ]; then
+		echo "ERROR: You must give a WAR_FILE_URL, or maven GROUP_ID, ARTIFACT_ID and ARTIFACT_VERSION"
+		exit 9
+	fi
+
+	if [ -z "$NEXUS_URL" ]; then
+		NEXUS_URL="https://nexus.axade-openpaas-components-prod"
+	fi
+	if [ -z "$NEXUS_REPO" ]; then
+		NEXUS_REPO="public"
+	fi
+
+	WAR_FILE_URL="${NEXUS_URL}/service/local/artifact/maven/content?r=${NEXUS_REPO}&g=${GROUP_ID}&a=${ARTIFACT_ID}&v=${ARTIFACT_VERSION}"
+	if [ -n "$CLASSIFIER" ]; then
+		WAR_FILE_URL="${WAR_FILE_URL}&c=${CLASSIFIER}"
+	fi
+	if [ -n "$TYPE" ]; then
+		WAR_FILE_URL="${WAR_FILE_URL}&p=${TYPE}"
+	fi
 fi
+
+echo "fetching from $WAR_FILE_URL"
+
+if [ -z "$TEMP" ]; then
+	TEMP=/tmp
+fi
+TEMP_DOWNLOAD_DIR="$TEMP/curldownload"
+if [ ! -d "$TEMP_DOWNLOAD_DIR" ]; then
+	mkdir "$TEMP_DOWNLOAD_DIR"
+fi
+
+HTTP_CODE=$(cd $TEMP_DOWNLOAD_DIR && curl -s -w"%{http_code}" -k -O ${WAR_FILE_URL})
+DOWNLOADED_FILE=`echo $TEMP_DOWNLOAD_DIR/*`
+echo "Downloaded $DOWNLOADED_FILE, Status $HTTP_CODE"
+if [ "${HTTP_CODE%%??}" !=  "2" ]; then
+	echo "Download failed, exiting!"
+	echo "DUMPING ENV ---------------"
+	set
+	exit 4
+fi
+
+EXTENSION=".${TYPE}"
+#EXTENSION=$".${DOWNLOADED_FILE##*.}"
+if [ -z "$EXTENSION" ]; then
+	EXTENSION=".war"
+fi
+
+if [ -z "$ROOT_CONTEXT_NAME" ]; then
+	ROOT_CONTEXT_NAME="ROOT"
+fi
+
+echo "Deploying as ${ROOT_CONTEXT_NAME}${EXTENSION} to ${DEPLOY_DIR}"
+mv $DOWNLOADED_FILE ${DEPLOY_DIR}/${ROOT_CONTEXT_NAME}${EXTENSION}
+
+
