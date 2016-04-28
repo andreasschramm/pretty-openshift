@@ -29,12 +29,15 @@ if [ -z "$WAR_FILE_URL" ]; then
 		NEXUS_REPO="public"
 	fi
 
-	WAR_FILE_URL="${NEXUS_URL}/service/local/artifact/maven/content?r=${NEXUS_REPO}&g=${GROUP_ID}&a=${ARTIFACT_ID}&v=${ARTIFACT_VERSION}"
+	GROUP_ID_DOTS=$(echo $GROUP_ID | sed 's|/|.|g')
+
+	WAR_FILE_URL="${NEXUS_URL}/service/local/artifact/maven/content?r=${NEXUS_REPO}&g=${GROUP_ID_DOTS}&a=${ARTIFACT_ID}&v=${ARTIFACT_VERSION}"
 	if [ -n "$CLASSIFIER" ]; then
 		WAR_FILE_URL="${WAR_FILE_URL}&c=${CLASSIFIER}"
 	fi
-	if [ -n "$TYPE" ]; then
-		WAR_FILE_URL="${WAR_FILE_URL}&p=${TYPE}"
+
+	if [ -n "$PACKAGING_TYPE" ]; then
+		WAR_FILE_URL="${WAR_FILE_URL}&p=${PACKAGING_TYPE}"
 	fi
 fi
 
@@ -49,7 +52,7 @@ if [ ! -d "$TEMP_DOWNLOAD_DIR" ]; then
 fi
 
 HTTP_CODE=$(cd $TEMP_DOWNLOAD_DIR && curl -s -w"%{http_code}" -k -O ${WAR_FILE_URL})
-DOWNLOADED_FILE=`echo $TEMP_DOWNLOAD_DIR/*`
+DOWNLOADED_FILE=$(cd $TEMP_DOWNLOAD_DIR; echo *)
 echo "Downloaded $DOWNLOADED_FILE, Status $HTTP_CODE"
 if [ "${HTTP_CODE%%??}" !=  "2" ]; then
 	echo "Download failed, exiting!"
@@ -58,17 +61,24 @@ if [ "${HTTP_CODE%%??}" !=  "2" ]; then
 	exit 4
 fi
 
-EXTENSION=".${TYPE}"
-#EXTENSION=$".${DOWNLOADED_FILE##*.}"
+# we use PACKAGING_TYPE as extension, since we only deploy jar/war/ear (would fail for packaging=pom!)
+EXTENSION="${PACKAGING_TYPE}"
 if [ -z "$EXTENSION" ]; then
-	EXTENSION=".war"
+	EXTENSION="jar"
 fi
 
 if [ -z "$ROOT_CONTEXT_NAME" ]; then
 	ROOT_CONTEXT_NAME="ROOT"
 fi
 
-echo "Deploying as ${ROOT_CONTEXT_NAME}${EXTENSION} to ${DEPLOY_DIR}"
-mv $DOWNLOADED_FILE ${DEPLOY_DIR}/${ROOT_CONTEXT_NAME}${EXTENSION}
+TARGET_FILE_NAME=$DOWNLOADED_FILE
+if [ -n "$JWS_HOME" ]; then
+	TARGET_FILE_NAME="$ROOT_CONTEXT_NAME"
+elif [ -n "$ARTIFACT_ID" ]; then
+	TARGET_FILE_NAME=ARTIFACT_ID
+fi
+
+echo "Deploying as ${TARGET_FILE_NAME}${EXTENSION} to ${DEPLOY_DIR}"
+mv $TEMP_DOWNLOAD_DIR/$DOWNLOADED_FILE ${DEPLOY_DIR}/${TARGET_FILE_NAME}.${EXTENSION}
 
 
