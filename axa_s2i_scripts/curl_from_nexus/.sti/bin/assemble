@@ -23,7 +23,7 @@ if [ -z "$WAR_FILE_URL" ]; then
 	fi
 
 	if [ -z "$NEXUS_URL" ]; then
-		NEXUS_URL="https://nexus.axade-openpaas-components-prod"
+		NEXUS_URL="https://nexus.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com"
 	fi
 	if [ -z "$NEXUS_REPO" ]; then
 		NEXUS_REPO="public"
