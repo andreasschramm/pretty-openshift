@@ -1,0 +1,112 @@
+# template to build by pulling from nexus
+apiVersion: v1
+kind: Template
+labels:
+  template: build-from-nexus
+  xpaas: 1.2.0
+metadata:
+  annotations:
+    description: AXA - Template / Vorlage template für build from nexus.
+    iconClass: icon-builder
+    tags: axa, nexus
+    version: 1.0.0
+    author: Andreas Schramm (andreas.schramm@axa.de)
+  name: build-from-nexus
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      application: ${APPLICATION_NAME}
+    name: ${ARTIFACT_ID}
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      application: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}-${ARTIFACT_VERSION}
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${ARTIFACT_ID}:${ARTIFACT_VERSION}
+    source:
+      contextDir: axa_s2i_scripts/curl_from_nexus
+      git:
+        httpProxy: http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}
+        httpsProxy: http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}
+        ref: master
+        uri: https://github.com/andreasschramm/pretty-openshift.git
+      type: Git
+    strategy:
+      sourceStrategy:
+        env:
+        - name: HTTP_PROXY_HOST
+          value: ${HTTP_PROXY_HOST}
+        - name: HTTP_PROXY_PORT
+          value: ${HTTP_PROXY_PORT}
+        - name: HTTP_PROXY
+          value: http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}
+        - name: HTTPS_PROXY
+          value: http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}
+        - name: ARTIFACT_ID
+          value: ${ARTIFACT_ID}
+        - name: GROUP_ID
+          value: ${GROUP_ID}
+        - name: ARTIFACT_VERSION
+          value: ${ARTIFACT_VERSION}
+        - name: PACKAGING_TYPE
+          value: ${PACKAGING_TYPE}
+        from:
+          kind: ImageStreamTag
+          name: ${BASE_IMAGE_NAME}
+          namespace: ${IMAGE_STREAM_NAMESPACE}
+      type: Source
+    triggers:
+    - imageChange: {}
+      type: ImageChange
+    - type: ConfigChange
+parameters:
+- description: Sprechender Name der Anwendung (FGSG)
+  name: APPLICATION_NAME
+  required: true
+- description: FGSG (Fach/Sachgebiet)
+  name: FGSG
+  required: true
+- description: Nexus Artifact ID der zu deployenden Anwendung
+  name: ARTIFACT_ID
+  required: true
+  value: openshiftdemo
+- description: Nexus Group ID der zu deployenden Anwendung
+  name: GROUP_ID
+  required: true
+  value: de/axa
+- description: Version der zu deployenden Anwendung im Nexus (z.B. LATEST, RELEASE, 1.0.0, 0.9-SNAPSHOT)
+  name: ARTIFACT_VERSION
+  required: true
+  value: LATEST
+- description: Packaging type (z.B. war, ear, jar)
+  name: PACKAGING_TYPE
+  required: true
+  value: war
+- description: Namespace, aus dem die DockerImages gezogen werden
+  name: IMAGE_STREAM_NAMESPACE
+  required: true
+  value: axade-dev-openpaas-components-dev
+- description: Name des Imagestreams, aus dem die DockerImages gezogen werden. z.B.
+    axa-de-tc8
+  name: BASE_IMAGE_NAME
+  required: true
+  value: axa-de-tc8
+- description: Nexus url (z.B. https://nexus.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com)
+  name: NEXUS_URL
+- description: Nexus Repository (z.B. public)
+  name: NEXUS_REPO
+- description: Proxy Host for Internet Access
+  name: HTTP_PROXY_HOST
+  required: true
+  value: default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com
+- description: Proxy Port for Internet Access
+  name: HTTP_PROXY_PORT
+  required: true
+  value: "8888"
