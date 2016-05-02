@@ -185,7 +185,7 @@
                     },
                     {
                         "name": "WAR_FILE_URL",
-                        "value": "http://172.30.115.34:8081/content/groups/public/${GROUP_ID}/${ARTIFACT_ID}/${ARTIFACT_VERSION}/${ARTIFACT_ID}-${ARTIFACT_VERSION}.war"
+                        "value": "https://nexus.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com/content/groups/public/${GROUP_ID}/${ARTIFACT_ID}/${ARTIFACT_VERSION}/${ARTIFACT_ID}-${ARTIFACT_VERSION}.war"
                     }
                         ]
                     }
