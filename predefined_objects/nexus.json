@@ -1,0 +1,268 @@
+{
+	"kind": "List",
+	"apiVersion": "v1",
+	"metadata": {
+		"name": "nexus",
+		"annotations": {
+			"description": "nexus definitions for axa infrastructure."
+		}
+	},
+
+	"items":
+	[
+		{
+			"kind": "BuildConfig",
+			"apiVersion": "v1",
+			"metadata": {
+				"name": "nexus",
+				"labels": {
+					"application": "nexus"
+				}
+			},
+
+			"spec": {
+				"triggers":
+				[
+					{
+						"type": "GitHub",
+						"github": {
+							"secret": "OEYVg1Y1Pwo11w7oeWdY"
+						}
+					},
+
+					{
+						"type": "Generic",
+						"generic": {
+							"secret": "GsoVtewlgIuatNaaFtrM"
+						}
+					},
+
+					{
+						"type": "ConfigChange"
+					},
+
+					{
+						"type": "ImageChange",
+						"imageChange": {
+
+						}
+					}
+				],
+
+				"source": {
+					"type": "Git",
+					"git": {
+						"uri": "https://github.com/andreasschramm/pretty-openshift",
+						"httpProxy": "http://default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com:8888",
+						"httpsProxy": "http://default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com:8888"
+					},
+
+					"contextDir": "images/nexus-2"
+				},
+
+				"strategy": {
+					"type": "Docker",
+					"dockerStrategy": {
+						"from": {
+							"kind": "DockerImage",
+							"name": "centos:7"
+						},
+
+						"env":
+						[
+
+							{
+								"name": "http_proxy",
+								"value": "http://default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com:8888"
+							},
+							{
+								"name": "HTTPS_PROXY",
+								"value": "http://default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com:8888"
+							}
+						]
+					}
+				},
+
+				"output": {
+					"to": {
+						"kind": "ImageStreamTag",
+						"name": "nexus:latest"
+					}
+				}
+			}
+		},
+
+		{
+			"kind": "ImageStream",
+			"apiVersion": "v1",
+			"metadata": {
+				"name": "nexus",
+				"labels": {
+					"application": "nexus"
+				}
+			}
+		},
+
+		{
+			"kind": "DeploymentConfig",
+			"apiVersion": "v1",
+			"metadata": {
+				"name": "nexus",
+				"labels": {
+					"application": "nexus"
+				}
+			},
+
+			"spec": {
+				"strategy": {
+					"type": "Rolling",
+					"rollingParams": {
+						"intervalSeconds": 1,
+						"timeoutSeconds": 120
+					}
+				},
+
+				"triggers":
+				[
+					{
+						"type": "ConfigChange"
+					},
+
+					{
+						"type": "ImageChange",
+						"imageChangeParams": {
+							"automatic": true,
+							"containerNames":
+							[
+								"nexus"
+							],
+
+							"from": {
+								"kind": "ImageStreamTag",
+								"name": "nexus:latest"
+							}
+						}
+					}
+				],
+
+				"replicas": 1,
+				"selector": {
+					"application": "nexus",
+					"deploymentconfig": "nexus"
+				},
+
+				"template": {
+					"metadata": {
+						"creationTimestamp": null,
+						"labels": {
+							"application": "nexus",
+							"deploymentconfig": "nexus"
+						}
+					},
+
+					"spec": {
+						"volumes":
+						[
+							{
+								"name": "nexus-repositories-volume-1"
+							}
+						],
+
+						"containers":
+						[
+							{
+								"name": "nexus",
+								"image": "nexus",
+								"ports":
+								[
+									{
+										"name": "http",
+										"containerPort": 8081,
+										"protocol": "TCP"
+									}
+								],
+
+								"resources": {
+									"limits": {
+										"cpu": "500m",
+										"memory": "1Gi"
+									}
+								},
+
+								"volumeMounts":
+								[
+									{
+										"name": "nexus-repositories-volume-1",
+										"mountPath": "/repositories"
+									}
+								],
+
+								"imagePullPolicy": "Always"
+							}
+						],
+
+						"restartPolicy": "Always"
+					}
+				}
+			}
+		},
+
+		{
+			"kind": "Service",
+			"apiVersion": "v1",
+			"metadata": {
+				"name": "nexus",
+				"labels": {
+					"application": "nexus"
+				}
+			},
+
+			"spec": {
+				"ports":
+				[
+					{
+						"name": "8081-tcp",
+						"protocol": "TCP",
+						"port": 8081,
+						"targetPort": 8081
+					}
+				],
+
+				"selector": {
+					"application": "nexus",
+					"deploymentconfig": "nexus"
+				}
+			}
+		},
+
+		{
+			"kind": "Route",
+			"apiVersion": "v1",
+			"metadata": {
+				"name": "nexus",
+				"labels": {
+					"application": "nexus"
+				}
+			},
+
+			"spec": {
+				"host": "nexus.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com",
+				"to": {
+					"kind": "Service",
+					"name": "nexus"
+				},
+
+				"port": {
+					"targetPort": "8081-tcp"
+				},
+
+				"tls": {
+					"termination": "edge",
+					"certificate": "-----BEGIN CERTIFICATE-----\nMIIGSzCCBTOgAwIBAgIKFXliCQABAAJYvTANBgkqhkiG9w0BAQsFADBQMRcwFQYK\nCZImiZPyLGQBGRYHaW50cmF4YTEWMBQGCgmSJomT8ixkARkWBmF4YS1kZTEdMBsG\nA1UEAxMUQVhBIGRlIElzc3VpbmcgQ0EgMDEwHhcNMTYwNDA2MTI1MDMzWhcNMTgw\nNDA2MTI1MDMzWjCBlDELMAkGA1UEBhMCREUxDDAKBgNVBAgTA05SVzEQMA4GA1UE\nBxMHQ29sb2duZTEMMAoGA1UEChMDQVhBMREwDwYDVQQLEwhJVEQxLVRBUDFEMEIG\nA1UEAxM7bmV4dXMub3NhcHBleHQucGluay5ldS1jZW50cmFsLTEuYXdzLm9wZW5w\nYWFzLmF4YS1jbG91ZC5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB\nAQDXr0HOa6I1X7W/aCmXGcmtWUgiLWhBkUujhiPmRd4iMD0uMfZe36RATEQCoykC\nHsoSfSA+BL26DyEXSpPh6IR4j3tiQW6Ui5HUuIwyEpt7thsZFLVgwCnUzMbGZsHL\n+OoyCGffmYNNxRCbyrlWQXTP/y9NtKJ4/bvLio+Wjau6/AwzZlUrxEg3BxgBNdLB\na24jc8y5o3unYVw6eBWnuVhh220LaatEOaIKd/3FZABPRBdKltiHm/d4oToAJ3oJ\nx6omuPakJtlVxphMN58vtb2D/3aMQWDqHvpDjGSWgL+E5jXkSQM7NxhSGLupIEnh\nm+QMQ/7phN6aEuc3ecip/oTVAgMBAAGjggLgMIIC3DAdBgNVHQ4EFgQUTwvvEQGX\nKHPGc5XL9lZJPKIEWFIwHwYDVR0jBBgwFoAUfTVlDLAZ77shFeuKBePs4pZ55Jkw\nggEoBgNVHR8EggEfMIIBGzCCARegggEToIIBD4aBxGxkYXA6Ly8vQ049QVhBJTIw\nZGUlMjBJc3N1aW5nJTIwQ0ElMjAwMSxDTj1XRFZTRUMwQixDTj1DRFAsQ049UHVi\nbGljJTIwS2V5JTIwU2VydmljZXMsQ049U2VydmljZXMsQ049Q29uZmlndXJhdGlv\nbixEQz1hZHMsREM9aW50cmF4YT9jZXJ0aWZpY2F0ZVJldm9jYXRpb25MaXN0P2Jh\nc2U/b2JqZWN0Q2xhc3M9Y1JMRGlzdHJpYnV0aW9uUG9pbnSGRmh0dHA6Ly9jZXJ0\nLmF4YS1kZS5pbnRyYXhhL0NlcnRFbnJvbGwvQVhBJTIwZGUlMjBJc3N1aW5nJTIw\nQ0ElMjAwMS5jcmwwggEnBggrBgEFBQcBAQSCARkwggEVMIG7BggrBgEFBQcwAoaB\nrmxkYXA6Ly8vQ049QVhBJTIwZGUlMjBJc3N1aW5nJTIwQ0ElMjAwMSxDTj1BSUEs\nQ049UHVibGljJTIwS2V5JTIwU2VydmljZXMsQ049U2VydmljZXMsQ049Q29uZmln\ndXJhdGlvbixEQz1hZHMsREM9aW50cmF4YT9jQUNlcnRpZmljYXRlP2Jhc2U/b2Jq\nZWN0Q2xhc3M9Y2VydGlmaWNhdGlvbkF1dGhvcml0eTBVBggrBgEFBQcwAoZJaHR0\ncDovL2NlcnQuYXhhLWRlLmludHJheGEvQ2VydEVucm9sbC9BWEElMjBkZSUyMElz\nc3VpbmclMjBDQSUyMDAxKDEpLmNydDAhBgkrBgEEAYI3FAIEFB4SAFcAZQBiAFMA\nZQByAHYAZQByMAsGA1UdDwQEAwIFoDATBgNVHSUEDDAKBggrBgEFBQcDATANBgkq\nhkiG9w0BAQsFAAOCAQEAB+dBu1N/EPyxSpuBxgkP+gdZOX+npcuRrhJY8yVx3E0P\ne03iqIBeewUN+wtNqPLYk0hofXwSMqlfndvKnPADuJa8RfzMxt+Tzlr9KvHDR0eK\ndukoou4aEMXu/4IygI9y58DnSno16cJWtABaeVsXtTIZZvfyB/I1tSs6iBAd+//y\nqaqbnv9dibUeP6u92vZHFZjI7fyuwBecL8eXTVFh0JVqgWwO2jof7ZDcHI8BYSBl\nQYfDpqQfa0DE0tqAfkNw1fDtgfQtUjc5OQYrj2/vYjCVno/ViD4UIKOAlhcdNYID\nQqomRci6OLZJukqNGXKJf/exzGBIVzTb0vvEaEK+WQ==\n-----END CERTIFICATE-----",
+					"key": "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA169BzmuiNV+1v2gplxnJrVlIIi1oQZFLo4Yj5kXeIjA9LjH2\nXt+kQExEAqMpAh7KEn0gPgS9ug8hF0qT4eiEeI97YkFulIuR1LiMMhKbe7YbGRS1\nYMAp1MzGxmbBy/jqMghn35mDTcUQm8q5VkF0z/8vTbSieP27y4qPlo2ruvwMM2ZV\nK8RINwcYATXSwWtuI3PMuaN7p2FcOngVp7lYYdttC2mrRDmiCnf9xWQAT0QXSpbY\nh5v3eKE6ACd6CceqJrj2pCbZVcaYTDefL7W9g/92jEFg6h76Q4xkloC/hOY15EkD\nOzcYUhi7qSBJ4ZvkDEP+6YTemhLnN3nIqf6E1QIDAQABAoIBAQCibq6UkqLap3Xs\n7LlFvnoQPwkAFEpL9uyL/l3S8hNUlBe/TolI8gx1D/q4McCUhDOSsQEzM8be9L3r\nGJM+synw0b4ORVDONj5hgYqzuye1h3Po85uVfaMDTCT3DjQtNQzLGWGBF8+3Jg5Y\nBdiGiU07x+cMElm53P0tUPDKZW9LpVxDtYhxgn3n69eZfdQ5/xOYezgqb/+95RDF\nnwH3A8aJmZ4xMKEapjdlaxuAT0/480W1/p4LME7kiD7GS2TQp7L6Nm7lU6JgjsVB\n3fLU/7dwBLdcZcGNZNmseNO4ZjT03GOcCb6Rs8CUjyDE3objhv32IOsT26X8edmS\nI2Pr9C8BAoGBAPIgJWUgU0VhqlJ2U3n0ucWGQGiPL2dDQ6OKUS3rRoY939tpo40r\n+qBSxdlvBNI7qyoMDLenVut75PckpSSIyXGxjHQij56OBmawcn1N3nWgxOXnAnbu\n8Vp7+0A49Vg2v3YOfIwKhKaG0YAtwj898a9XzzbWI7gDNVAdt2Fze/9FAoGBAOQL\nPGSreGZtqKBAuebQs6mx+ZC+Nt0xklk3V49CbNEd5yeZW0yH3qVfobSTOsRjilPf\nzlhYQmwARFM2voFs7YVbldEjskkYSRhltPd1ptVygiAbVUpGAEE6Q/DNXLHK6w6h\ngjfvT305YqHuhKH1e28U78PMOR6pybQq5ECAg8BRAoGBAJi1OaCcUKizvm6f/mou\ntXQlBj5sAGPKgsCEnkqt1x8XqzaBXAvPrxSq3+oRISNPStcMHoE+Y43F6FUPobB3\nLUYtyv38RkSkItllc/Afyqy5pzWxC1bjwQlmpMKOqf7nGL5myJqyj5NP+JY1RgwJ\nD4OdiC13xbNrIpbTBzPJWG1ZAoGAb2LZleZ3QbiwU84pv4cTKoEHAF8Yl0QeUruI\nZi4wzpfHj30FrkTzSF2Es5nya3ifWUaJGHfLwcsDlI250afuAGRyshu4eqGFGoib\nMv/hhIKQ8rPHHidA+ptGEjmM3D7cP2I+I6odbnH4LlY9rIomR2S3lDCNed++6OTG\nZocfU3ECgYADq7DMiCmsrF5+rwL9Oj909CxumVQkfKaXS5wpJEf4Jh67/3XnqIyR\nstsPP+27E9GHETtisazlhUOwvsnnM3ym8tsVKCXBEPjtMbhu86XOP7sODPf2H/nZ\nJLWF8XSu1wX663z70w+b1w/iRD09ImKoQQTJodT+m+n/23atJutZuA==\n-----END RSA PRIVATE KEY-----",
+					"caCertificate": "-----BEGIN CERTIFICATE-----\nMIIFUzCCAzugAwIBAgIKYQFIFgAAAAAAITANBgkqhkiG9w0BAQUFADAWMRQwEgYD\nVQQDEwtBWEEgUk9PVCBDQTAeFw0xMjExMDcwOTUyMTFaFw0yMjExMDcxMDAyMTFa\nMFAxFzAVBgoJkiaJk/IsZAEZFgdpbnRyYXhhMRYwFAYKCZImiZPyLGQBGRYGYXhh\nLWRlMR0wGwYDVQQDExRBWEEgZGUgSXNzdWluZyBDQSAwMTCCASIwDQYJKoZIhvcN\nAQEBBQADggEPADCCAQoCggEBANj5Xdsq0NhyihtuGdvI4KtOyjzhEHIM4onC2aZu\nySLPTdS5l2TbGg2qWnVPmrPD+XHaAUaQJtCCqLCzYT9AG+1yc2KlqxI9RANqP0qP\nbPqhPGP+fTf67OuNn4oqgqCjQk6HYnwi6hETNKNYOM9EcT/n5Tf6aGI0j3FDu9Ov\noNJyBm7xW17YO7F/GgbFFWd3sBO++UkES6g59A/5Ng3C5GPr6kvpn34Hay3iVHXp\n5lhZuJP2yL/pobVoAJ+NKz/IC9Y5VSl9bP7jbY0ZL2HMG/XFtnSL7j0HlUR6MZXt\ncvFlb97gt3+yTyIic6D1gwFXHuNWTrSIfAaPQZS9G4dhotsCAwEAAaOCAWcwggFj\nMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFH01ZQywGe+7IRXrigXj7OKWeeSZ\nMAsGA1UdDwQEAwIBhjAQBgkrBgEEAYI3FQEEAwIBATAjBgkrBgEEAYI3FQIEFgQU\nuNF4XpfEi/hnCTu6d4npxQLL57cwGQYJKwYBBAGCNxQCBAweCgBTAHUAYgBDAEEw\nHwYDVR0jBBgwFoAURIWy+fnMe3IssrNStvNs/QwvfqwwTQYDVR0fBEYwRDBCoECg\nPoY8aHR0cDovL2luZm9wa2kuYXhhLXRlY2guaW50cmF4YS9DZXJ0RGF0YS9BWEEl\nMjBST09UJTIwQ0EuY3JsMGIGCCsGAQUFBwEBBFYwVDBSBggrBgEFBQcwAoZGaHR0\ncDovL2luZm9wa2kuYXhhLXRlY2guaW50cmF4YS9DZXJ0RGF0YS9heGFyb290Y2Ff\nQVhBJTIwUk9PVCUyMENBLmNydDANBgkqhkiG9w0BAQUFAAOCAgEAK0anFqJmU2CK\nLi5tHYDUKTw7FZa4ZoYdLteKSN7h6GpFMWBlUoo2fF+bgp2/UdPN6qTr8jhM+ZH2\nL7o9G2FERecWVsW3bFpG5EQxQ66VpH9mT7Rjrw2APqTKYt83ZsmWveps0xMOQtJA\nIeaubBgQzV8SokDZgLhsVs1eVXDwgUbgSPoMI17cEYOhOIeof2+7kzhgaUQls9do\nUy4Xknv921CyrsDwKl1K0SA3NMyiRWD/dndOKZ1LHJPix77U8M/OZJQt0eTzWPp4\nARgIQE8uP9SNnBrONnulmdgouCX+dPGuKStHvmoJ2cQu3HGCv2JgYo9E0nK7r75d\nF54Nqi4CF8N73PstpO4WHrEshqgOR/a+WCa/sAbj6BDkkAxeL3SVXuIQrlBMJiNv\n5Unzi2uxOSnIlE+UpEIdTmCUWqFpmcTWTlE5kXuHZ9s3Dw8REmIkY250149+J/Z9\n8Ugm+tifELA9eDvpohR3PCy0v6hRUv+kQc/6EslksAeQvpc56WSo4G0TZdTtNqmU\n1mRquboHqJLodbXW4C9gKJC/zOGCTicQf29ldGTA1W9nkX1k/Me5kq8lwUKytypc\nNQrtJgyjC6GaGeFNMh1s/bPakyIGLDc0GxT16KCOL8c0QlWg+mtdD6nlKonfmRto\n5b297YDI4qKLpVvjZ45uvxQJq+LiJ84=\n-----END CERTIFICATE-----"
+				}
+			}
+		}
+	]
+}
