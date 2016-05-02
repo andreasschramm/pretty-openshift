@@ -1,0 +1,330 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "annotations": {
+      "iconClass": "icon-tomcat",
+      "description": "Application template for Tomcat8 / bin deploy from nexus.",
+      "tags": "tomcat,tomcat8,java,xpaas,axa",
+      "version": "1.2.0"
+    },
+    "name": "axa-tomcat8-from-nexus"
+  },
+  "labels": {
+    "template": "axa-tomcat8-from-nexus",
+    "xpaas": "1.2.0"
+  },
+  "parameters": [
+    {
+      "description": "The name for the application.",
+      "name": "APPLICATION_NAME",
+      "value": "",
+      "required": true
+    },
+    {
+      "description": "Axa Environment in lowercase letters !",
+      "name": "AXA_RT_ENV",
+      "value": "migr",
+      "required": true
+    },
+    {
+      "description": "Web Rootcontext for the application",
+      "name": "ROOT_CONTEXT_NAME",
+      "value": "",
+      "required": true
+    },
+    {
+      "description": "Custom hostname for http service route.  Leave blank for default hostname, e.g.: <application-name>-<project>.<default-domain-suffix>",
+      "name": "HOSTNAME_HTTP",
+      "value": "",
+      "required": false
+    },
+    {
+      "description": "Artifact ID",
+      "name": "ARTIFACT_ID",
+      "value": "openshiftdemo",
+      "required": true
+    },
+    {
+      "description": "Group ID, statt . Slash(/)",
+      "name": "GROUP_ID",
+      "value": "de/axa",
+      "required": true
+    },
+    {
+      "description": "Version",
+      "name": "ARTIFACT_VERSION",
+      "value": "0.0.1",
+      "required": true
+    },
+    {
+      "description": "Proxy Host for Internet Access",
+      "name": "HTTP_PROXY_HOST",
+      "value": "default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com",
+      "required": false
+    },
+    {
+      "description": "Namespace in which the base ImageStreams are installed.",
+      "name": "IMAGE_STREAM_NAMESPACE",
+      "value": "openshift",
+      "required": true
+    },
+    {
+      "description": "Proxy Port for Internet Access",
+      "name": "HTTP_PROXY_PORT",
+      "value": "8888",
+      "required": false
+    }
+  ],
+  "objects": [
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "spec": {
+        "ports": [
+          {
+            "port": 8080,
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "deploymentConfig": "${APPLICATION_NAME}"
+        }
+      },
+      "metadata": {
+        "name": "${APPLICATION_NAME}",
+        "labels": {
+          "application": "${APPLICATION_NAME}"
+        },
+        "annotations": {
+          "description": "The web server's http port."
+        }
+      }
+    },
+    {
+      "kind": "Route",
+      "apiVersion": "v1",
+      "id": "${APPLICATION_NAME}-http",
+      "metadata": {
+        "name": "${APPLICATION_NAME}",
+        "labels": {
+          "application": "${APPLICATION_NAME}"
+        },
+        "annotations": {
+          "description": "Route for application's http service."
+        }
+      },
+      "spec": {
+        "host": "${HOSTNAME_HTTP}.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com",
+        "path": "/${ROOT_CONTEXT_NAME}",
+        "to": {
+          "name": "${APPLICATION_NAME}"
+        }
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APPLICATION_NAME}",
+        "labels": {
+          "application": "${APPLICATION_NAME}"
+        }
+      },
+      "spec": {
+        "tags": [
+          {
+            "name": "latest",
+            "from": {
+              "kind": "DockerImage",
+              "name": "${APPLICATION_NAME}:latest"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APPLICATION_NAME}",
+        "labels": {
+          "application": "${APPLICATION_NAME}"
+        }
+      },
+      "spec": {
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "https://scm.paas.axa.com/stash/scm/axa-de_ext_openshift/bin-deploy.git",
+            "ref": "jws",
+            "httpProxy": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}",
+            "httpsProxy": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
+          },
+          "sourceSecret": {
+            "name": "stashsecret"
+          }
+        },
+        "strategy": {
+          "type": "Source",
+          "sourceStrategy": {
+            "forcePull": true,
+            "from": {
+              "kind": "ImageStreamTag",
+              "namespace": "${IMAGE_STREAM_NAMESPACE}",
+              "name": "jboss-webserver30-tomcat8-openshift:latest"
+            },
+            "env": [
+              {
+                "name": "HTTP_PROXY_HOST",
+                "value": "${HTTP_PROXY_HOST}"
+              },
+              {
+                "name": "HTTP_PROXY_PORT",
+                "value": "${HTTP_PROXY_PORT}"
+              },
+              {
+                "name": "HTTP_PROXY",
+                "value": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
+              },
+              {
+                "name": "HTTPS_PROXY",
+                "value": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
+              },
+              {
+                "name": "ROOT_CONTEXT_NAME",
+                "value": "${ROOT_CONTEXT_NAME}"
+              },
+              {
+                "name": "WAR_FILE_URL",
+                "value": "https://nexus.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com/content/groups/public/${GROUP_ID}/${ARTIFACT_ID}/${ARTIFACT_VERSION}/${ARTIFACT_ID}-${ARTIFACT_VERSION}.war"
+              }
+            ]
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "${APPLICATION_NAME}:latest"
+          }
+        },
+        "triggers": [
+          {
+            "type": "ImageChange",
+            "imageChange": {}
+          },
+          {
+            "type": "ConfigChange"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${APPLICATION_NAME}",
+        "labels": {
+          "application": "${APPLICATION_NAME}"
+        }
+      },
+      "spec": {
+        "strategy": {
+          "type": "Recreate"
+        },
+        "triggers": [
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "${APPLICATION_NAME}"
+              ],
+              "from": {
+                "kind": "ImageStream",
+                "name": "${APPLICATION_NAME}:latest"
+              }
+            }
+          },
+          {
+            "type": "ConfigChange"
+          }
+        ],
+        "replicas": 1,
+        "selector": {
+          "deploymentConfig": "${APPLICATION_NAME}"
+        },
+        "template": {
+          "metadata": {
+            "name": "${APPLICATION_NAME}",
+            "labels": {
+              "deploymentConfig": "${APPLICATION_NAME}",
+              "application": "${APPLICATION_NAME}"
+            }
+          },
+          "spec": {
+            "terminationGracePeriodSeconds": 60,
+            "containers": [
+              {
+                "name": "${APPLICATION_NAME}",
+                "image": "${APPLICATION_NAME}:latest",
+                "imagePullPolicy": "Always",
+                "ports": [
+                  {
+                    "name": "jolokia",
+                    "containerPort": 8778,
+                    "protocol": "TCP"
+                  },
+                  {
+                    "name": "http",
+                    "containerPort": 8080,
+                    "protocol": "TCP"
+                  },
+                  {
+                    "name": "ping",
+                    "containerPort": 8888,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "OPENSHIFT_KUBE_PING_LABELS",
+                    "value": "application=${APPLICATION_NAME}"
+                  },
+                  {
+                    "name": "OPENSHIFT_KUBE_PING_NAMESPACE",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "fieldPath": "metadata.namespace"
+                      }
+                    }
+                  },
+                  {
+                    "name": "HTTP_PROXY_HOST",
+                    "value": "${HTTP_PROXY_HOST}"
+                  },
+                  {
+                    "name": "HTTP_PROXY_PORT",
+                    "value": "${HTTP_PROXY_PORT}"
+                  },
+                  {
+                    "name": "HTTP_PROXY",
+                    "value": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
+                  },
+                  {
+                    "name": "HTTPS_PROXY",
+                    "value": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
+                  },
+                  {
+                    "name": "AXA_RT_ENV",
+                    "value": "${AXA_RT_ENV}"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
