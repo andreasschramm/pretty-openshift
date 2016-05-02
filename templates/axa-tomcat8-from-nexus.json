@@ -215,7 +215,8 @@
             "metadata": {
                 "name": "${APPLICATION_NAME}-${AXA_RT_ENV}",
                 "labels": {
-                    "application": "${APPLICATION_NAME}-${AXA_RT_ENV}"
+                    "application": "${APPLICATION_NAME}",
+                    "axa.rt.env": "${AXA_RT_ENV}"
                 }
             },
             "spec": {
