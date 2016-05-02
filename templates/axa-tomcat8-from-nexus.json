@@ -34,7 +34,7 @@
             "required": true
         },
         {
-            "description": "Custom hostname for http service route.  Leave blank for default hostname, e.g.: <application-name>-<project>.<default-domain-suffix>",
+            "description": "Custom hostname for http service route.  Leave blank for default hostname",
             "name": "HOSTNAME_HTTP",
             "value": "",
             "required": false
@@ -94,7 +94,8 @@
             "metadata": {
                 "name": "${APPLICATION_NAME}-${AXA_RT_ENV}",
                 "labels": {
-                    "application": "${APPLICATION_NAME}"
+                    "application": "${APPLICATION_NAME}",
+                    "axa.rt.env": "${AXA_RT_ENV}"
                 },
                 "annotations": {
                     "description": "The web server's http port."
@@ -104,11 +105,12 @@
         {
             "kind": "Route",
             "apiVersion": "v1",
-            "id": "${APPLICATION_NAME}-http",
+            "id": "${APPLICATION_NAME}-${AXA_RT_ENV}-http",
             "metadata": {
-                "name": "${APPLICATION_NAME}",
+                "name": "${APPLICATION_NAME}-${AXA_RT_ENV}",
                 "labels": {
-                    "application": "${APPLICATION_NAME}"
+                    "application": "${APPLICATION_NAME}",
+                    "axa.rt.env": "${AXA_RT_ENV}"
                 },
                 "annotations": {
                     "description": "Route for application's http service."
@@ -126,9 +128,9 @@
             "kind": "ImageStream",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${APPLICATION_NAME}",
+                "name": "${ARTIFACT_ID}",
                 "labels": {
-                    "application": "${APPLICATION_NAME}-${AXA_RT_ENV}"
+                    "application": "${APPLICATION_NAME}"
                 }
             }
         },
@@ -136,9 +138,9 @@
             "kind": "BuildConfig",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${APPLICATION_NAME}-${AXA_RT_ENV}",
+                "name": "${APPLICATION_NAME}",
                 "labels": {
-                    "application": "${APPLICATION_NAME}-${AXA_RT_ENV}"
+                    "application": "${APPLICATION_NAME}"
                 }
             },
             "spec": {
@@ -148,7 +150,7 @@
                         "uri": "https://scm.paas.axa.com/stash/scm/axa-de_ext_openshift/bin-deploy.git",
                         "ref": "jws",
                         "httpProxy": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}",
-        		"httpsProxy": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
+        		        "httpsProxy": "http://${HTTP_PROXY_HOST}:${HTTP_PROXY_PORT}"
                     },   "sourceSecret": {
                         "name": "stashsecret"
                     }
@@ -193,7 +195,7 @@
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "${APPLICATION_NAME}:${AXA_RT_ENV}"
+                        "name": "${ARTIFACT_ID}:${ARTIFACT_VERSION}"
                     }
                 },
                 "triggers": [
@@ -230,7 +232,7 @@
                             ],
                             "from": {
                                 "kind": "ImageStream",
-                                "name": "${APPLICATION_NAME}:${AXA_RT_ENV}"
+                                "name": "${ARTIFACT_ID}:${ARTIFACT_VERSION}"
                             }
                         }
                     },
@@ -247,7 +249,8 @@
                         "name": "${APPLICATION_NAME}-${AXA_RT_ENV}",
                         "labels": {
                             "deploymentConfig": "${APPLICATION_NAME}-${AXA_RT_ENV}",
-                            "application": "${APPLICATION_NAME}-${AXA_RT_ENV}"
+                            "application": "${APPLICATION_NAME}",
+                            "axa.rt.env": "${AXA_RT_ENV}"
                         }
                     },
                     "spec": {
