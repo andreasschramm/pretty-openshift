@@ -46,6 +46,12 @@
             "required": true
         },
         {
+            "description": "Artifact ID Lowercase",
+            "name": "ARTIFACT_ID_LOWERCASE",
+            "value": "",
+            "required": false
+        },
+        {
             "description": "Group ID, statt . Slash(/)",
             "name": "GROUP_ID",
             "value": "de/axa",
@@ -128,7 +134,7 @@
             "kind": "ImageStream",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${ARTIFACT_ID}",
+                "name": "${ARTIFACT_ID_LOWERCASE}",
                 "labels": {
                     "application": "${APPLICATION_NAME}"
                 }
@@ -195,7 +201,7 @@
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "${ARTIFACT_ID}:${ARTIFACT_VERSION}"
+                        "name": "${ARTIFACT_ID_LOWERCASE}:${ARTIFACT_VERSION}"
                     }
                 },
                 "triggers": [
@@ -233,7 +239,7 @@
                             ],
                             "from": {
                                 "kind": "ImageStream",
-                                "name": "${ARTIFACT_ID}:${ARTIFACT_VERSION}"
+                                "name": "${ARTIFACT_ID_LOWERCASE}:${ARTIFACT_VERSION}"
                             }
                         }
                     },
