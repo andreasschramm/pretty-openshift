@@ -1,0 +1,201 @@
+{
+	"kind": "List",
+	"apiVersion": "v1",
+	"metadata": {
+		"name": "nexus",
+		"annotations": {
+			"description": "nexus definitions for axa infrastructure."
+		}
+	},
+
+	"items":
+	[
+		{
+			"kind": "DeploymentConfig",
+			"apiVersion": "v1",
+			"metadata": {
+				"name": "nexus-prod",
+				"labels": {
+					"application": "nexus",
+					"axa.rt.env": "PROD"
+				}
+			},
+
+			"spec": {
+				"strategy": {
+					"type": "Rolling",
+					"rollingParams": {
+						"intervalSeconds": 1,
+						"timeoutSeconds": 120
+					}
+				},
+
+				"triggers":
+				[
+					{
+						"type": "ConfigChange"
+					},
+
+					{
+						"type": "ImageChange",
+						"imageChangeParams": {
+							"automatic": true,
+							"containerNames":
+							[
+								"nexus"
+							],
+
+							"from": {
+								"kind": "ImageStreamTag",
+								"name": "nexus:prod"
+							}
+						}
+					}
+				],
+
+				"replicas": 1,
+				"selector": {
+					"application": "nexus",
+					"axa.rt.env": "PROD"
+				},
+
+				"template": {
+					"metadata": {
+						"creationTimestamp": null,
+						"labels": {
+							"application": "nexus",
+							"axa.rt.env": "PROD",
+							"deploymentconfig": "nexus-prod"
+						}
+					},
+
+					"spec": {
+						"volumes":
+						[
+							{
+								"name": "nexus-repositories-volume-1"
+							},
+
+							{
+								"name": "nexus-https-cert-secret-volume",
+								"secret": {
+									"secretName": "nexus-https-cert-secret"
+								}
+							}
+						],
+
+						"containers":
+						[
+							{
+								"name": "nexus",
+								"image": "nexus",
+								"ports":
+								[
+									{
+										"name": "http",
+										"containerPort": 8081,
+										"protocol": "TCP"
+									},
+
+									{
+										"name": "https",
+										"containerPort": 8443,
+										"protocol": "TCP"
+									}
+								],
+
+								"resources": {
+									"limits": {
+										"cpu": "500m",
+										"memory": "1Gi"
+									}
+								},
+
+								"volumeMounts":
+								[
+									{
+										"name": "nexus-repositories-volume-1",
+										"mountPath": "/repositories"
+									},
+
+									{
+										"name": "nexus-https-cert-secret-volume",
+										"mountPath": "/secret"
+									}
+								]
+							}
+						],
+
+						"restartPolicy": "Always",
+						"serviceAccountName": "nexus-serviceaccount",
+						"serviceAccount": "nexus-serviceaccount"
+					}
+				}
+			}
+		},
+
+		{
+			"kind": "Service",
+			"apiVersion": "v1",
+			"metadata": {
+				"name": "nexus-prod",
+				"labels": {
+					"application": "nexus",
+					"axa.rt.env": "PROD"
+				}
+			},
+
+			"spec": {
+				"ports":
+				[
+					{
+						"name": "https",
+						"protocol": "TCP",
+						"port": 8443,
+						"targetPort": 8443
+					},
+
+					{
+						"name": "http",
+						"protocol": "TCP",
+						"port": 8081,
+						"targetPort": 8081
+					}
+				],
+
+				"selector": {
+					"application": "nexus",
+					"axa.rt.env": "PROD"
+				}
+			}
+		},
+
+		{
+			"kind": "Route",
+			"apiVersion": "v1",
+			"metadata": {
+				"name": "nexus-prod-https",
+				"labels": {
+					"application": "nexus",
+					"axa.rt.env": "PROD"
+				}
+			},
+
+			"spec": {
+				"host": "nexus.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com",
+				"to": {
+					"kind": "Service",
+					"name": "nexus-prod"
+				},
+
+				"port": {
+					"targetPort": "https"
+				},
+
+				"tls": {
+					"termination": "passthrough"
+				}
+			}
+		}
+	]
+}

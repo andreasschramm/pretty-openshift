@@ -1,0 +1,105 @@
+{
+	"kind": "List",
+	"apiVersion": "v1",
+	"metadata": {
+		"name": "nexus",
+		"annotations": {
+			"description": "nexus definitions for axa infrastructure."
+		}
+	},
+
+	"items":
+	[
+		{
+			"kind": "ImageStream",
+			"apiVersion": "v1",
+			"metadata": {
+				"name": "nexus",
+				"labels": {
+					"application": "nexus"
+				}
+			}
+		},
+		{
+			"kind": "BuildConfig",
+			"apiVersion": "v1",
+			"metadata": {
+				"name": "nexus",
+				"labels": {
+					"application": "nexus"
+				}
+			},
+
+			"spec": {
+				"triggers":
+				[
+					{
+						"type": "GitHub",
+						"github": {
+
+						}
+					},
+
+					{
+						"type": "Generic",
+						"generic": {
+
+						}
+					},
+
+					{
+						"type": "ConfigChange"
+					},
+
+					{
+						"type": "ImageChange",
+						"imageChange": {
+
+						}
+					}
+				],
+
+				"source": {
+					"type": "Git",
+					"git": {
+						"uri": "https://github.com/andreasschramm/pretty-openshift",
+						"httpProxy": "http://default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com:8888",
+						"httpsProxy": "http://default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com:8888"
+					},
+
+					"contextDir": "images/nexus-2"
+				},
+
+				"strategy": {
+					"type": "Docker",
+					"dockerStrategy": {
+						"from": {
+							"kind": "DockerImage",
+							"name": "centos:7"
+						},
+
+						"env":
+						[
+							{
+								"name": "http_proxy",
+								"value": "http://default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com:8888"
+							},
+
+							{
+								"name": "HTTPS_PROXY",
+								"value": "http://default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com:8888"
+							}
+						]
+					}
+				},
+
+				"output": {
+					"to": {
+						"kind": "ImageStreamTag",
+						"name": "nexus:latest"
+					}
+				}
+			}
+		}
+	]
+}

@@ -11,105 +11,14 @@
 	"items":
 	[
 		{
-			"kind": "BuildConfig",
-			"apiVersion": "v1",
-			"metadata": {
-				"name": "nexus",
-				"labels": {
-					"application": "nexus"
-				}
-			},
-
-			"spec": {
-				"triggers":
-				[
-					{
-						"type": "GitHub",
-						"github": {
-							"secret": "OEYVg1Y1Pwo11w7oeWdY"
-						}
-					},
-
-					{
-						"type": "Generic",
-						"generic": {
-							"secret": "GsoVtewlgIuatNaaFtrM"
-						}
-					},
-
-					{
-						"type": "ConfigChange"
-					},
-
-					{
-						"type": "ImageChange",
-						"imageChange": {
-
-						}
-					}
-				],
-
-				"source": {
-					"type": "Git",
-					"git": {
-						"uri": "https://github.com/andreasschramm/pretty-openshift",
-						"httpProxy": "http://default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com:8888",
-						"httpsProxy": "http://default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com:8888"
-					},
-
-					"contextDir": "images/nexus-2"
-				},
-
-				"strategy": {
-					"type": "Docker",
-					"dockerStrategy": {
-						"from": {
-							"kind": "DockerImage",
-							"name": "centos:7"
-						},
-
-						"env":
-						[
-
-							{
-								"name": "http_proxy",
-								"value": "http://default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com:8888"
-							},
-							{
-								"name": "HTTPS_PROXY",
-								"value": "http://default-http-proxy.pink.eu-central-1.aws.openpaas.axa-cloud.com:8888"
-							}
-						]
-					}
-				},
-
-				"output": {
-					"to": {
-						"kind": "ImageStreamTag",
-						"name": "nexus:latest"
-					}
-				}
-			}
-		},
-
-		{
-			"kind": "ImageStream",
-			"apiVersion": "v1",
-			"metadata": {
-				"name": "nexus",
-				"labels": {
-					"application": "nexus"
-				}
-			}
-		},
-
-		{
 			"kind": "DeploymentConfig",
 			"apiVersion": "v1",
 			"metadata": {
 				"name": "nexus",
 				"labels": {
-					"application": "nexus"
+					"application": "nexus",
+					"stage": "prod",
+					"axa.rt.env": "PROD"
 				}
 			},
 
@@ -139,7 +48,7 @@
 
 							"from": {
 								"kind": "ImageStreamTag",
-								"name": "nexus:latest"
+								"name": "nexus:prod"
 							}
 						}
 					}
@@ -221,7 +130,7 @@
 				"ports":
 				[
 					{
-						"name": "8081-tcp",
+						"name": "http",
 						"protocol": "TCP",
 						"port": 8081,
 						"targetPort": 8081
@@ -253,7 +162,7 @@
 				},
 
 				"port": {
-					"targetPort": "8081-tcp"
+					"targetPort": "http"
 				},
 
 				"tls": {
