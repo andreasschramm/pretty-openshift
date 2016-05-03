@@ -46,6 +46,12 @@
       "required": true
     },
     {
+      "description": "Artifact ID Lowercase",
+      "name": "ARTIFACT_ID_LOWERCASE",
+      "value": "",
+      "required": false
+    },
+    {
       "description": "Group ID, statt . Slash(/)",
       "name": "GROUP_ID",
       "value": "de/axa",
@@ -126,21 +132,10 @@
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${APPLICATION_NAME}",
+        "name": "${ARTIFACT_ID_LOWERCASE}",
         "labels": {
           "application": "${APPLICATION_NAME}"
         }
-      },
-      "spec": {
-        "tags": [
-          {
-            "name": "latest",
-            "from": {
-              "kind": "DockerImage",
-              "name": "${APPLICATION_NAME}:latest"
-            }
-          }
-        ]
       }
     },
     {
@@ -205,7 +200,7 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "${APPLICATION_NAME}:latest"
+            "name": "${ARTIFACT_ID_LOWERCASE}:${ARTIFACT_VERSION}"
           }
         },
         "triggers": [
@@ -267,7 +262,7 @@
             "containers": [
               {
                 "name": "${APPLICATION_NAME}",
-                "image": "${APPLICATION_NAME}:latest",
+                "image": "${APPLICATION_NAME}",
                 "imagePullPolicy": "Always",
                 "ports": [
                   {
