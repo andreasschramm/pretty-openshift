@@ -28,10 +28,11 @@ if [ -z "$WAR_FILE_URL" ]; then
 	if [ -z "$NEXUS_REPO" ]; then
 		NEXUS_REPO="public"
 	fi
+	#ARTIFACT_VERSION_UPPERCASE=$(echo $ARTIFACT_VERSION | tr '[:lower:] '[:upper:]')
 
 	GROUP_ID_DOTS=$(echo $GROUP_ID | sed 's|/|.|g')
 
-	WAR_FILE_URL="${NEXUS_URL}/service/local/artifact/maven/content?r=${NEXUS_REPO}&g=${GROUP_ID_DOTS}&a=${ARTIFACT_ID}&v=${ARTIFACT_VERSION}"
+	WAR_FILE_URL="${NEXUS_URL}/service/local/artifact/maven/content?r=${NEXUS_REPO}&g=${GROUP_ID_DOTS}&a=${ARTIFACT_ID}&v=${$ARTIFACT_VERSION}"
 	if [ -n "$CLASSIFIER" ]; then
 		WAR_FILE_URL="${WAR_FILE_URL}&c=${CLASSIFIER}"
 	fi
