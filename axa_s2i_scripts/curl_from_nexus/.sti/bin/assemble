@@ -32,7 +32,7 @@ if [ -z "$WAR_FILE_URL" ]; then
 
 	GROUP_ID_DOTS=$(echo $GROUP_ID | sed 's|/|.|g')
 
-	WAR_FILE_URL="${NEXUS_URL}/service/local/artifact/maven/content?r=${NEXUS_REPO}&g=${GROUP_ID_DOTS}&a=${ARTIFACT_ID}&v=${$ARTIFACT_VERSION}"
+	WAR_FILE_URL="${NEXUS_URL}/service/local/artifact/maven/content?r=${NEXUS_REPO}&g=${GROUP_ID_DOTS}&a=${ARTIFACT_ID}&v=${ARTIFACT_VERSION}"
 	if [ -n "$CLASSIFIER" ]; then
 		WAR_FILE_URL="${WAR_FILE_URL}&c=${CLASSIFIER}"
 	fi
