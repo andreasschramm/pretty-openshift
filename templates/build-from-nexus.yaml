@@ -6,7 +6,7 @@ labels:
   xpaas: 1.2.0
 metadata:
   annotations:
-    description: AXA - Template / Vorlage template für build from nexus.
+    description: AXA - Template / Vorlage zum Build from nexus.
     iconClass: icon-builder
     tags: axa, nexus
     version: 1.0.0
@@ -24,12 +24,12 @@ objects:
   metadata:
     labels:
       application: ${APPLICATION_NAME}
-    name: ${APPLICATION_NAME}-${ARTIFACT_VERSION}
+    name: ${APPLICATION_NAME}
   spec:
     output:
       to:
         kind: ImageStreamTag
-        name: ${ARTIFACT_ID}:${ARTIFACT_VERSION}
+        name: ${ARTIFACT_ID}:${IMAGE_STREAM_TAG}
     source:
       contextDir: axa_s2i_scripts/curl_from_nexus
       git:
@@ -58,7 +58,7 @@ objects:
         - name: PACKAGING_TYPE
           value: ${PACKAGING_TYPE}
         from:
-          kind: ImageStreamTag
+          kind: ImageStream
           name: ${BASE_IMAGE_NAME}
           namespace: ${IMAGE_STREAM_NAMESPACE}
       type: Source
@@ -67,12 +67,16 @@ objects:
       type: ImageChange
     - type: ConfigChange
 parameters:
-- description: Sprechender Name der Anwendung (FGSG)
+- description: Sprechender Name der Anwendung (nur kleinbuchstaben)
   name: APPLICATION_NAME
   required: true
-- description: FGSG (Fach/Sachgebiet)
+- description: FGSG (Fach/Sachgebiet, kleinbuchstaben)
   name: FGSG
   required: true
+- description: TAG für das build (kleinbuchstaben, punkte, zahlen)
+  name: IMAGE_STREAM_TAG
+  required: true
+  value: latest
 - description: Nexus Artifact ID der zu deployenden Anwendung
   name: ARTIFACT_ID
   required: true
@@ -89,15 +93,15 @@ parameters:
   name: PACKAGING_TYPE
   required: true
   value: war
-- description: Namespace, aus dem die DockerImages gezogen werden
-  name: IMAGE_STREAM_NAMESPACE
-  required: true
-  value: axade-dev-openpaas-components-dev
 - description: Name des Imagestreams, aus dem die DockerImages gezogen werden. z.B.
     axa-de-tc8
   name: BASE_IMAGE_NAME
   required: true
   value: axa-de-tc8
+- description: Namespace, aus dem die DockerImages gezogen werden
+  name: IMAGE_STREAM_NAMESPACE
+  required: true
+  value: axade-openpaas-components-dev
 - description: Nexus url (z.B. https://nexus.osappext.pink.eu-central-1.aws.openpaas.axa-cloud.com)
   name: NEXUS_URL
 - description: Nexus Repository (z.B. public)
